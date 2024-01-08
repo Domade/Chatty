@@ -1,70 +1,19 @@
-# Import the logging module
-import logging
-
-import sys
-print(sys.executable)
-print(sys.path)
-
+# Import the required modules at the top of the file
 import os
-
-# Import the unittest module
-import unittest
-
-# Import the random module
 import random
-
-# Import the azure cognitive services speech module
 import azure.cognitiveservices.speech as speechsdk
-
-# Use the correct attribute name with the correct case
-voice_profile = speechsdk.VoiceProfile(azure.cognitiveservices.speech, speechsdk.VoiceProfileType.Online)
-
-
-# Use the correct attribute name with the correct case
-voice_profile = speechsdk.VoiceProfile(azure.cognitiveservices.speech, speechsdk.VoiceProfileType.Online)
-
-# Set up the Azure Text to Speech service
-speech_key = "your-key"
-speech_region = "your-region"
-speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
-audio_config = speechsdk.AudioConfig(filename="output.wav")
-
-# Create a SpeechSynthesizer object
-speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
-
-# Convert text to speech
-text = "Hello, this is Azure Text to Speech."
-result = speech_synthesizer.speak_text_async(text).get()
-
-try:  # Add a try block here
-    # Import the module using the correct name
-    import azure.cognitiveservices.speech as speechsdk
-
-
-except ImportError as e:
-    print("Error: {}".format(e))
-    print("Please make sure you have installed the required libraries.")
-    exit()
-# Define a main function
-def main():
-    # Your main logic goes here
-  # Get the text from the user input
-  text = input("Enter the text that you want to convert to speech: ")
-
-
-# Generate a random list of 10 numbers between 1 and 20
-lst = random.sample(range(1, 21), 10)
-# Sort the list
-lst.sort()
-# Generate a random target value between 1 and 20
-target = random.randint(1, 20)
-
-
-text = "Hello, world!"
-
-    # Convert the text to speech
-result = speech_synthesizer.speak_text_async(text).get()
-if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+# Define a function for text-to-speech conversion
+def convert_text_to_speech(text):
+    # Set up the Azure Text to Speech service
+    speech_key = "your-key"
+    speech_region = "your-region"
+    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
+    audio_config = speechsdk.AudioConfig(filename="output.wav")
+    # Create a SpeechSynthesizer object
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+    # Convert text to speech
+    result = speech_synthesizer.speak_text_async(text).get()
+    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
         # Print a message
         print("Speech synthesized successfully.")
         # Save the speech output as a wav file
@@ -73,13 +22,25 @@ if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
         with open(wav_file, 'wb') as f:
             f.write(result.audio_data)
         print("Speech output saved as {}".format(wav_file))
-elif result.reason == speechsdk.ResultReason.Canceled:
+    elif result.reason == speechsdk.ResultReason.Canceled:
         # Print a message
         print("Speech synthesis canceled: {}".format(result.cancellation_details.reason))
         # Check the cancellation reason
         if result.cancellation_details.reason == speechsdk.CancellationReason.Error:
             # Print the error details
             print("Error details: {}".format(result.cancellation_details.error_details))
+# Define a main function
+def main():
+    # Get the text from the user input
+    text = input("Enter the text that you want to convert to speech: ")
+    # Call the text-to-speech conversion function
+    convert_text_to_speech(text)
+    # Generate a random list of 10 numbers between 1 and 20
+    lst = random.sample(range(1, 21), 10)
+    # Sort the list
+    lst.sort()
+    # Generate a random target value between 1 and 20
+    target = random.randint(1, 20)
 # Call the main function only when the script is executed directly
 if __name__ == "__main__":
     main()
