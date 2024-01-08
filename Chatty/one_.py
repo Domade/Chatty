@@ -1,8 +1,21 @@
 import os
 import random
-import azure.cognitiveservices.speech as speechsdk
 import logging
 import unittest
+
+try:
+    import azure.cognitiveservices.speech as speechsdk
+except ImportError:
+    print("""
+    Importing the Speech SDK for Python failed.
+    Refer to
+    https://docs.microsoft.com/azure/cognitive-services/speech-service/quickstart-python for
+    installation instructions.
+    """)
+    import sys
+    sys.exit(1)
+
+
 def convert_text_to_speech(text):
     speech_key = "91b64e62-ca8e-4956-aa09-87c13b7d0380"
     speech_region = "eastus"
