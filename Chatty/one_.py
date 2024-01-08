@@ -44,12 +44,14 @@ def main():
   # Get the text from the user input
   text = input("Enter the text that you want to convert to speech: ")
 
-  # Generate a random list of 10 numbers between 1 and 20
+
+# Generate a random list of 10 numbers between 1 and 20
 lst = random.sample(range(1, 21), 10)
-  # Sort the list
+# Sort the list
 lst.sort()
-  # Generate a random target value between 1 and 20
-random.randint(1, 20)
+# Generate a random target value between 1 and 20
+target = random.randint(1, 20)
+
 
 text = "Hello, world!"
 
@@ -78,23 +80,6 @@ if __name__ == "__main__":
 # Get the text from the user input
 text = input("Enter the text that you want to convert to speech: ")
 
-# Import the random module
-import random
-
-# Generate a random list of 10 numbers between 1 and 20
-lst = random.sample(range(1, 21), 10)
-# Sort the list
-lst.sort()
-# Generate a random target value between 1 and 20
-target = random.randint(1, 20)
-
-
-# Generate a random list of 10 numbers between 1 and 20
-lst = random.sample(range(1, 21), 10)
-# Sort the list
-lst.sort()
-# Generate a random target value between 1 and 20
-target = random.randint(1, 20)
 
 while True:
         # Convert the text to speech
