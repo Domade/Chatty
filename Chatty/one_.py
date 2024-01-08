@@ -17,7 +17,7 @@ except ImportError:
 
 
 def convert_text_to_speech(text):
-    speech_key = "91b64e62-ca8e-4956-aa09-87c13b7d0380"
+    speech_key = "421ccfbe89054d5eb5d259152b5d0e1b"
     speech_region = "eastus"
     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
     audio_config = speechsdk.AudioConfig(filename="output.wav")
