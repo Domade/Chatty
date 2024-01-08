@@ -9,50 +9,6 @@ import unittest
   # Import the random module
 import random  # Align the import statement at the global level
 
-#import rollbar then intiate
-# access_token, environment, code_version
-import rollbar
-
-rollbar.init(
-  access_token='6ecdd7dcf9d74871be43a16f4116522a',
-  environment='testenv',
-  code_version='1.0'
- )
-
-try:
-    a = None
-    a.hello()
-except:
-    rollbar.report_exc_info()
-# Example of error data enrichment (optional)
-def payload_handler(payload, **kw):
-    # Adding info about the user affected by this event (optional)
-    # The 'id' field is required, anything else is optional
-    payload['data']['person'] = {
-        'id': '1234',
-        'username': 'testuser',
-        'email': 'user@email',
-    }
-
-    # Example of adding arbitrary metadata (optional)
-    payload['data']['custom'] = {
-        'trace_id': 'aabbccddeeff',
-        'feature_flags': [
-            'feature_1',
-            'feature_2',
-        ],
-    }
-
-    return payload
-
-rollbar.events.add_payload_handler(payload_handler)
-
-try:
-    a = None
-    a.hello()
-except:
-    rollbar.report_exc_info()
-
 # Import the module using the correct name
 import azure.cognitiveservices.speech as speechsdk
 
