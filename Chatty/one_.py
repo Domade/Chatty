@@ -9,9 +9,6 @@ import unittest
   # Import the random module
 import random  # Align the import statement at the global level
 
-# Import the module using the correct name
-import azure.cognitiveservices.speech as speechsdk
-
 # Use the correct attribute name with the correct case
 voice_profile = speechsdk.VoiceProfile(voice_name, speechsdk.VoiceProfileType.Online)
 
@@ -29,9 +26,8 @@ text = "Hello, this is Azure Text to Speech."
 result = speech_synthesizer.speak_text_async(text).get()
 
 try:  # Add a try block here
-    import logging
-    import os
-    import unittest
+    # Import the module using the correct name
+    import azure.cognitiveservices.speech as speechsdk
 
 
 except ImportError as e:
