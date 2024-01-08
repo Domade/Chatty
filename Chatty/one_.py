@@ -1,13 +1,19 @@
-# Import the libraries
 # Import the logging module
 import logging
+
 import os
 
 # Import the unittest module
 import unittest
 
-  # Import the random module
-import random  # Align the import statement at the global level
+# Import the random module
+import random
+
+# Import the azure cognitive services speech module
+import azure.cognitiveservices.speech as speechsdk
+
+# Use the correct attribute name with the correct case
+voice_profile = speechsdk.VoiceProfile(azure.cognitiveservices.speech, speechsdk.VoiceProfileType.Online)
 
 
 # Use the correct attribute name with the correct case
@@ -76,6 +82,7 @@ if __name__ == "__main__":
 
 # Get the text from the user input
 text = input("Enter the text that you want to convert to speech: ")
+
 
 
 while True:
