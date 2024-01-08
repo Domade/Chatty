@@ -4,9 +4,9 @@
 <-S-t-e-p-o-n-e- - - < - - - - - - - - The Snake has alot to eat.  Not even close. to step 2
 
 
-Step one - A friend needed
+Step 1 - A friend needed
 
-Step two  - A beacon for all
+Step 2  - A beacon for all
 
 Step 3 - The Power to fight your fears
 
