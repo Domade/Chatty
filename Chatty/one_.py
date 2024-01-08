@@ -4,8 +4,8 @@ import azure.cognitiveservices.speech as speechsdk
 import logging
 import unittest
 def convert_text_to_speech(text):
-    speech_key = "your-key"
-    speech_region = "your-region"
+    speech_key = "421ccfbe89054d5eb5d259152b5d0e1b"
+    speech_region = "eastus"
     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
     audio_config = speechsdk.AudioConfig(filename="output.wav")
     
