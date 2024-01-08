@@ -1,6 +1,10 @@
 # Import the logging module
 import logging
 
+import sys
+print(sys.executable)
+print(sys.path)
+
 import os
 
 # Import the unittest module
