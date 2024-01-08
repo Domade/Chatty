@@ -9,8 +9,9 @@ import unittest
   # Import the random module
 import random  # Align the import statement at the global level
 
+
 # Use the correct attribute name with the correct case
-voice_profile = speechsdk.VoiceProfile(voice_name, speechsdk.VoiceProfileType.Online)
+voice_profile = speechsdk.VoiceProfile(azure.cognitiveservices.speech, speechsdk.VoiceProfileType.Online)
 
 # Set up the Azure Text to Speech service
 speech_key = "your-key"
