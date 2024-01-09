@@ -5,13 +5,10 @@ import unittest
 
 try:
     import azure.cognitiveservices.speech as speechsdk
-except ImportError:
-    print("""
-    Importing the Speech SDK for Python failed.
-    Refer to
-    https://docs.microsoft.com/azure/cognitive-services/speech-service/quickstart-python for
-    installation instructions.
-    """)
+except Exception as e:
+    logging.exception("An error occurred")
+else:
+    print("exiting")
     import sys
     sys.exit(1)
 
@@ -100,18 +97,31 @@ def binary_search(lst, target):
     high = len(lst) - 1
     
     while low <= high:
-        mid = (low + high) // 2
+        low = 0
+        high = len(lst) - 1
+    if output.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+        print("Speech synthesized successfully.")
+        main_dir = os.path.dirname(__file__)
+        wav_file = os.path.join(main_dir, 'output.wav')
+        with open(wav_file, 'wb') as f:
+            f.write(output.audio_data)
+        print("Speech output saved as {}".format(wav_file))
         
-        if lst[mid] == target:
-            return mid
-        
-        elif target < lst[mid]:
-            high = mid - 1
-            
-        else:
-            low = mid + 1
-            
+    mid = (low + high) // 2
+    if lst[mid] == target:
+        return mid
+    elif lst[mid] < target:
+        low = mid + 1
+    else:
+        high = mid - 1
     return -1
+
+while True:
+    text = input("Enter the text that you want to convert to speech: ")
+    if text.lower() == 'quit':
+        break
+    output = speech_synthesizer.speak_text_async(text).get()
+
 lst = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 target = 14
 result = binary_search(lst, target)
