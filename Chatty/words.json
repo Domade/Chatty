@@ -1,9 +1,9 @@
  {
-    "nouns": ["time", "person", "year",],
-    "verbs": ["be", "have", "do",],
-    "descriptors": ["good", "new", "first",],
-    "conjunctions": ["and", "or", "but",],
-    "positive_words": ["happy", "joy", "love",],
-    "negative_words": ["sad", "pain", "hate",],
-    "swear_words": ["shit", "damn", "hell",]
+    "nouns": ["time", "person", "year"],
+    "verbs": ["be", "have", "do"],
+    "descriptors": ["good", "new", "first"],
+    "conjunctions": ["and", "or", "but"],
+    "positive_words": ["happy", "joy", "love"],
+    "negative_words": ["sad", "pain", "hate"],
+    "swear_words": ["shit", "damn", "hell"]
   }
