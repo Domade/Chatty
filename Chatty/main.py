@@ -17,24 +17,32 @@ logging.basicConfig(filename='app.log',
 def get_sentiment(text):
   positive_words = ['good', 'great', 'awesome', 'happy', 'love']
   negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
-  swear_words = ['shit', 'damn', 'hell']  # Add your list of swear words here
+  swear_words = ['shit', 'damn', 'hell']
   score = 0
-  # Check each word in the text
+  contains_swear = False
+  # First, check for swear words to set a flag
   for word in text.lower().split():
+    if contains_swear:  # Skip subsequent processing if a swear word is already found
+      break
     if word in swear_words:
-      return "swear", [
-          9
-      ]  # Return the detected swear sentiment and the corresponding score as an array
-    if word in positive_words:
-      score += 1
-    elif word in negative_words:
-      score -= 1
-  if score > 0:
-    return "positive", [score]
-  elif score < 0:
-    return "negative", [score]
+      contains_swear = True
+  # If no swear word is found, calculate sentiment score
+  if not contains_swear:
+    for word in text.lower().split():
+      if word in positive_words:
+        score = min(score + 1, 8)  # Ensure score does not exceed 8
+      elif word in negative_words:
+        score = max(score - 1, -8)  # Ensure score does not go below -8
+  # Return the proper sentiment result
+  if contains_swear:
+    return "swear", [9]
   else:
-    return "neutral", [0]
+    if score > 0:
+      return "positive", [score]
+    elif score < 0:
+      return "negative", [score]
+    else:
+      return "neutral", [0]
 
 
 # Function to save words to a file
@@ -178,21 +186,22 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 # Modified get_response function with simplified sentiment analysis
 def get_response(text):
   suggested_action = None
-  # Create indices of words in the input text
-  indices = [i for i, _ in enumerate(text.split())]
   # Get sentiment and score of the input text
   sentiment, score = get_sentiment(text)
-
-  # Print the indices regardless of sentiment
-
+  # Create indices of words in the input text
+  indices = [i for i in range(len(text.split()))]
   # If a swear word is detected, modify the indices as required
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
-    indices += [9]  # Add [9] to the indices list
-    print(indices)
-    return "Do not speak to me that way."
-
+    indices = [
+        9
+    ]  # The requirements state all indices should be replaced with [9]
+  else:
+    # The indices must include the sentiment score if not swearing
+    indices += score
+  # Print the indices regardless of sentiment
   print(indices)
+  # Additional logic handling for greetings, farewells, and suggested_actions
 
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
