@@ -182,6 +182,7 @@ def get_response(text):
   # Check for swear words first
   sentiment, score = get_sentiment(text)
   indices = [i for i, _ in enumerate(text.split())]
+  print(indices)
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
 
