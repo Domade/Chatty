@@ -6,6 +6,7 @@ import spacy
 import sys
 import random
 import json
+
 # Function to save words to a file
 def save_words():
     with open('words.json', 'w') as f:
@@ -16,6 +17,7 @@ def save_words():
             'conjunctions': conjunctions
         }
         json.dump(words_to_save, f)
+
 # Function to load words from a file
 def load_words():
     try:
@@ -29,24 +31,12 @@ def load_words():
             )
     except FileNotFoundError:
         return [], [], [], []  # Return empty lists if the file doesn't exist
-# Load the words at the beginning of your program
-nouns, verbs, descriptors, conjunctions = load_words()
-# ... rest of your program ...
-# Save the words at the end of your program or after updating any list
-save_words()
 
 # Load the spaCy model
 nlp = spacy.load("en_core_web_sm")
 
-# Define lists with predefined words
-greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
-farewells = ["bye", "goodbye", "see you later", "farewell"]
-wellbeing = ["how are you", "how's it going", "what's up"]
-weather_statements = ["weather", "rain", "sunny", "cloudy", "hot", "cold"]
-nouns = ['dog', 'cat', 'mouse', 'house', 'car']
-verbs = ['runs', 'jumps', 'sleeps', 'drives', 'sits']
-descriptors = ['quick', 'lazy', 'sleepy', 'happy', 'sad']
-conjunctions = ['and', 'or', 'but', 'because', 'if', 'while', 'although']
+# Load the words at the beginning of your program
+nouns, verbs, descriptors, conjunctions = load_words()
 
 # Function to process and respond to the input text
 def get_response(text, doc):
@@ -70,6 +60,41 @@ def get_response(text, doc):
 def add_to_list(word, word_list):
     if word not in word_list:
         word_list.append(word)
+        save_words()
+
+# Function for feedback interaction and learning
+def get_feedback_and_learn(text, response):
+    print(response)
+    feedback = input("Was my response appropriate? (yes/no): ").strip().lower()
+    if feedback == 'no':
+        print("I am still learning. How should I respond to '{}'?".format(text))
+        correct_response = input("Correct response: ").strip()
+        # Here you could implement further learning logic based on the correct response
+        # For example, you can reprocess the text and add new words appropriately
+        doc = nlp(text)
+        update_vocabulary(doc)
+
+# Function to update vocabulary with new words from the feedback
+def update_vocabulary(doc):
+    for token in doc:
+        if token.pos_ == 'NOUN' and token.text not in nouns:
+            add_to_list(token.text, nouns)
+        elif token.pos_ == 'VERB' and token.text not in verbs:
+            add_to_list(token.text, verbs)
+        elif token.pos_ == 'ADJ' and token.text not in descriptors:
+            add_to_list(token.text, descriptors)
+        elif token.pos_ == 'CONJ' and token.text not in conjunctions:
+            add_to_list(token.text, conjunctions)
+
+# Define lists with predefined words
+greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
+farewells = ["bye", "goodbye", "see you later", "farewell"]
+wellbeing = ["how are you", "how's it going", "what's up"]
+weather_statements = ["weather", "rain", "sunny", "cloudy", "hot", "cold"]
+nouns += ['dog', 'cat', 'mouse', 'house', 'car']
+verbs += ['runs', 'jumps', 'sleeps', 'drives', 'sits']
+descriptors += ['quick', 'lazy', 'sleepy', 'happy', 'sad']
+conjunctions += ['and', 'or', 'but', 'because', 'if', 'while', 'although']
 
 # Main loop for the program
 while True:
@@ -102,4 +127,4 @@ while True:
                 add_to_list(token.text, conjunctions)
 
         response = get_response(text, doc)
-        print(response)
+        get_feedback_and_learn(text, response)
