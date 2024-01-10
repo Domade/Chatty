@@ -91,13 +91,20 @@ def load_words():
       loaded_words = json.load(f)
       return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
               loaded_words.get('descriptors',
-                               []), loaded_words.get('conjunctions', []))
+                               []), loaded_words.get('conjunctions', []),
+              loaded_words.get('positive_words',
+                               []), loaded_words.get('negative_words', []),
+              loaded_words.get('swear_words',
+                               []))  # Adding swear_words to the returned tuple
   except FileNotFoundError:
-    return [], [], [], []  # Return empty lists if the file doesn't exist
+    return [], [], [], [], [], [], [
+    ]  # Return empty lists if the file doesn't exist
 
 
 # Load words at the beginning of the program
-nouns, verbs, descriptors, conjunctions = load_words()
+# Update the global lists including the sentiment lists and swear_words list
+nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words = load_words(
+)
 # Predefined words
 greetings = [
     "hello", "hi", "hey", "good morning", "good afternoon", "good evening"
