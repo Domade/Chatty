@@ -1,4 +1,4 @@
-# create  words.json and learned_actions.json in main folder.
+# create words.json and learned_actions.json in main folder.
 # run python main.py
 # Import necessary libraries
 import sys
@@ -15,9 +15,8 @@ logging.basicConfig(filename='app.log',
 
 # Simplified sentiment analysis function
 def get_sentiment(text):
-  positive_words = ['good', 'great', 'awesome', 'happy', 'love']
-  negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
-  swear_words = ['shit', 'damn', 'hell']
+  # Load global sentiment word lists
+  global positive_words, negative_words, swear_words
   score = 0
   contains_swear = False
   # First, check for swear words to set a flag
@@ -43,6 +42,34 @@ def get_sentiment(text):
       return "negative", [score]
     else:
       return "neutral", [0]
+
+
+# Function to get word type scores
+def get_word_type_scores(text):
+  global nouns, verbs, descriptors, conjunctions
+  words = text.lower().split()
+  scores = []
+  for word in words:
+    if word in verbs:
+      scores.append(min(verbs.index(word) + 1, 3))
+    elif word in nouns:
+      scores.append(min(nouns.index(word) + 1, 4))
+    elif word in descriptors:
+      scores.append(min(descriptors.index(word) + 1, 8))
+    elif word in conjunctions:
+      scores.append(0)
+    elif word in swear_words:
+      scores.append(9)
+    else:
+      scores.append(0)
+  return scores
+
+
+# Function to compare sentiment and word type analyses
+def analyze_text(text):
+  sentiment_result, sentiment_scores = get_sentiment(text)
+  word_type_scores = get_word_type_scores(text)
+  return sentiment_result, sentiment_scores, word_type_scores
 
 
 # Function to save words to a file
@@ -182,58 +209,41 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 )
 
 
-# Modified get_response function with simplified sentiment analysis
-# Modified get_response function with simplified sentiment analysis
+# Modified get_response function with sentiment analysis and word type scoring
 def get_response(text):
-  suggested_action = None
-  # Get sentiment and score of the input text
-  sentiment, score = get_sentiment(text)
-  # Create indices of words in the input text
-  indices = [i for i in range(len(text.split()))]
-  # If a swear word is detected, modify the indices as required
-  if sentiment == "swear":
+  # Using the analyze_text function to get both types of analysis
+  sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
+  # If a swear word is detected, early return response
+  if sentiment_result == "swear":
     logging.warning(f"Swear word detected: {text}")
-    indices = [
-        9
-    ]  # The requirements state all indices should be replaced with [9]
-  else:
-    # The indices must include the sentiment score if not swearing
-    indices += score
-  # Print the indices regardless of sentiment
-  print(indices)
-  # Additional logic handling for greetings, farewells, and suggested_actions
+    return "I'm unable to respond to that."
 
-  # Check for greeting and farewells
+  # Handle greetings and farewells
   if any(greeting in text.lower() for greeting in greetings):
-    return f"{random.choice(greetings).capitalize()}! How can I help you today?"
+    response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
   elif any(farewell in text.lower() for farewell in farewells):
-    return f"{random.choice(farewells).capitalize()}! Have a great day!"
+    response = f"{random.choice(farewells).capitalize()}! Have a great day!"
+  else:
+    response = "How can I assist you?"
 
-  # Simplified sentiment analysis implementation
-  if sentiment == "positive":
+  # Appending additional analysis information
+  response += f"\nSentiment: {sentiment_result}, " \
+              f"Sentiment Scores: {sentiment_scores}, " \
+              f"Word Type Scores: {word_type_scores}"
+
+  # Handling sentiment-associated actions
+  if sentiment_result == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
     logging.info(f"Suggested Action: {suggested_action}")
-    # Log only if action is suggested
-    print(f"Suggested Action: {suggested_action}")
-    # Print only if action is suggested
-  elif sentiment == "negative":
+    response = f"{suggested_action}\n{response}"
+  elif sentiment_result == "negative":
     suggested_action = "This is a negative response action."
     learn_action(False, suggested_action)
     logging.info(f"Suggested Action: {suggested_action}")
-    # Log only if action is suggested
-    print(f"Suggested Action: {suggested_action}")
-    # Print only if action is suggested
+    response = f"{suggested_action}\n{response}"
 
-  # Handling for 'neutral' or 'undetermined' sentiment: example
-  # You can modify the following code according to your
-  # need if you have to handle neutral sentiment.
-  if suggested_action is None:
-    logging.info("Neutral or undetermined sentiment detected.")
-    print("Neutral or undetermined sentiment detected.")
-    suggested_action = "This is a neutral or undetermined response action."
-
-  return suggested_action
+  return response
 
 
 # Create TKinter popup to handle undetermined sentiment
