@@ -1,4 +1,3 @@
-
 # create  words.json and learned_actions.json in main folder.
 # run python main.py
 
@@ -7,18 +6,6 @@ import sys
 import random
 import json
 import logging
-
-from nltk.sentiment import SentimentIntensityAnalyzer
-
-# Initialize the SentimentIntensityAnalyzer
-sia = SentimentIntensityAnalyzer()
-
-
-def get_sentiment(text):
-  score = sia.polarity_scores(text)
-  positive_score = score['pos']
-  return positive_score > 0.1  # Threshold for positive sentiment, adjustable based on requirements.
-
 
 # Initialize logging
 logging.basicConfig(filename='app.log',
@@ -94,26 +81,17 @@ def get_response(text):
   elif any(farewell in text.lower() for farewell in farewells):
     return f"{random.choice(farewells).capitalize()}! Have a great day!"
 
-  # Attempt to use learned actions based on sentiment
-  is_action_good = get_sentiment(text)
-  suggested_action = "This is the default suggested action."
-  if is_action_good:
-    suggested_action = random.choice(
-        learned_actions["positive"]) if learned_actions[
-            "positive"] else "This is a positive suggested action."
-  else:
-    suggested_action = random.choice(
-        learned_actions["negative"]) if learned_actions[
-            "negative"] else "This is a negative suggested action."
+  # Use of a default action since sentiment is removed
+  suggested_action = "This is a default suggested action."
 
   print(f"Suggested Action: {suggested_action}")
   confirmation = input("Is this a good action? (yes/no): ").strip().lower()
 
   if confirmation == 'yes':
-    learn_action(is_action_good, suggested_action)
+    learn_action(True, suggested_action)
     feedback = "You confirmed that this is a good action."
   elif confirmation == 'no':
-    learn_action(not is_action_good, suggested_action)
+    learn_action(False, suggested_action)
     feedback = "You indicated that this is not a good action."
   else:
     feedback = "Invalid response. Please respond with 'yes' or 'no'."
