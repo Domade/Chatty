@@ -243,37 +243,39 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 )
 
 
-# Modified get_response function with sentiment analysis and word type scoring
+# Modified get_response function to print sentiment to the console
 def get_response(text):
-  # Using the analyze_text function to get both types of analysis
   sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
-  # If a swear word is detected, early return response
+
   if sentiment_result == "swear":
     logging.warning(f"Swear word detected: {text}")
+    print("Swear word detected.")  # Print to console instead of pop-up
     return "I'm unable to respond to that."
 
-  # Handle greetings and farewells without appending sentiment analysis
   if any(greeting in text.lower() for greeting in greetings):
     response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
   elif any(farewell in text.lower() for farewell in farewells):
     response = f"{random.choice(farewells).capitalize()}! Have a great day!"
   else:
     response = "How can I assist you?"
-  # Handling sentiment-associated actions for logging, excluding from user response
+
+  # Print sentiment information to console, not included in pop-up
   if sentiment_result == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
-    logging.info(f"Suggested Action: {suggested_action}")
+    print(f"Detected positive sentiment with the statement: {text}")
   elif sentiment_result == "negative":
     suggested_action = "This is a negative response action."
     learn_action(False, suggested_action)
-    logging.info(f"Suggested Action: {suggested_action}")
-  # Remember not to append sentiment to the response
+    print(f"Detected negative sentiment with the statement: {text}")
+
+  # Only save phrase if not negative
   if sentiment_result != "negative":
     save_learned_phrase(text, sentiment_result)
 
+  # Response is returned for pop-up without revealing sentiment analysis
   return response
-  
+
 
 # Create TKinter popup to handle undetermined sentiment
 def create_sentiment_buttons(user_text):
