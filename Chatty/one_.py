@@ -60,19 +60,6 @@ def learn_action(is_positive, action):
     json.dump(learned_actions, la)
 
 
-# Function to load learned actions from a file
-def load_learned_actions():
-  try:
-    with open('learned_actions.json', 'r') as la:
-      return json.load(la)
-  except FileNotFoundError:
-    return {"positive": [], "negative": []}
-
-
-# Load learned actions at the beginning of the program
-learned_actions = load_learned_actions()
-
-
 # Consolidated get_response function
 def get_response(text):
   # Check for greeting and farewells
@@ -144,6 +131,7 @@ def manage_words(command, word, pos):
       print(response)  # Print the response from the get_response function
   # ... [rest of the code above remains unchanged] ...
   # Simplified sentiment analysis function
+  
   def get_sentiment(text):
     positive_words = ['good', 'great', 'awesome', 'happy', 'love']
     negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
