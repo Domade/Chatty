@@ -180,6 +180,8 @@ def get_response(text):
   # Simplified sentiment analysis implementation
   sentiment = get_sentiment(text)
   print(text.split())
+  indices = [i for i, _ in enumerate(text.split())]
+  print(indices)
   if sentiment == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
