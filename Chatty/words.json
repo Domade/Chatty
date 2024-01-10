@@ -1,6 +1,9 @@
-{
-    "nouns": ["exampleNoun1", "exampleNoun2"],
-    "verbs": ["exampleVerb1", "exampleVerb2"],
-    "descriptors": ["exampleDescriptor1", "exampleDescriptor2"],
-    "conjunctions": ["exampleConjunction1", "exampleConjunction2"]
+ {
+    "nouns": ["time", "person", "year",],
+    "verbs": ["be", "have", "do",],
+    "descriptors": ["good", "new", "first",],
+    "conjunctions": ["and", "or", "but",],
+    "positive_words": ["happy", "joy", "love",],
+    "negative_words": ["sad", "pain", "hate",],
+    "swear_words": ["shit", "damn", "hell",]
   }
