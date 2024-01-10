@@ -1,27 +1,35 @@
-def binary_search(lst, target):
-    low = 0
-    high = len(lst) - 1
+# Existing binary search function
+# ...
 
-    while low <= high:
-        mid = (low + high) // 2
-        if lst[mid] == target:
-            return mid
-        elif lst[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
-    return -1
+# Arrays for descriptive parts of speech
+nouns = ['dog', 'cat', 'mouse', 'house', 'car']
+verbs = ['runs', 'jumps', 'sleeps', 'drives', 'sits']
+descriptors = ['quick', 'lazy', 'sleepy', 'happy', 'sad']
+conjunctions = ['and', 'or', 'but', 'because', 'if', 'while', 'although']
 
+cheat = False  # Variable to track if a descriptor is found
 
 while True:
-    text = input("Enter the text that you want to convert to speech: ")
+    text = input("Enter the text that you want to check: ")
     if text.lower() == 'quit':
-        break
+        sys.exit()  # This will terminate the program immediately
     
-    # rest of the code
+    words = text.split()  # Split the input text into individual words
+    # Check for descriptors, nouns, verbs, and conjunctions in the input text
+    for word in words:
+        if binary_search(descriptors, word) != -1 or binary_search(nouns, word) != -1 or \
+           binary_search(verbs, word) != -1 or binary_search(conjunctions, word) != -1:
+            cheat = True
+            break  # No need to check further if a descriptive part of speech is found
 
+    if cheat:
+        # Placeholder for the action to take if a descriptor is found
+        print("Descriptor, noun, verb, or conjunction found.")
+        # Define the meaning found action later
+        # ...
+    
+    # Reset cheat for the next loop iteration
+    cheat = False
 
-try:
-    pass  # Placeholder for the code that may raise an exception
-except Exception as e:
-    logging.exception("An error occurred")
+    # Continue with the rest of your program...
+    # ...
