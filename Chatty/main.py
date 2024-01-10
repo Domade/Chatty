@@ -18,7 +18,7 @@ def get_sentiment(text):
   positive_words = ['good', 'great', 'awesome', 'happy', 'love']
   negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
   # List of swear words
-  swear_words = ['swearword1', 'swearword2', 'swearword3', 'etc'] 
+  swear_words = ['shit', 'swearword2', 'swearword3', 'etc']
   # Add actual swear words here
   score = 0
   # Assign a score of +1 for each positive word, and -1 for each negative word
