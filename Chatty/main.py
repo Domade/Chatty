@@ -252,35 +252,28 @@ def get_response(text):
     logging.warning(f"Swear word detected: {text}")
     return "I'm unable to respond to that."
 
-  # Handle greetings and farewells
+  # Handle greetings and farewells without appending sentiment analysis
   if any(greeting in text.lower() for greeting in greetings):
     response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
   elif any(farewell in text.lower() for farewell in farewells):
     response = f"{random.choice(farewells).capitalize()}! Have a great day!"
   else:
     response = "How can I assist you?"
-
-  # Appending additional analysis information
-  response += f"\nSentiment: {sentiment_result}, " \
-              f"Sentiment Scores: {sentiment_scores}, " \
-              f"Word Type Scores: {word_type_scores}"
-
-  # Handling sentiment-associated actions
+  # Handling sentiment-associated actions for logging, excluding from user response
   if sentiment_result == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
     logging.info(f"Suggested Action: {suggested_action}")
-    response = f"{suggested_action}\n{response}"
   elif sentiment_result == "negative":
     suggested_action = "This is a negative response action."
     learn_action(False, suggested_action)
     logging.info(f"Suggested Action: {suggested_action}")
-    response = f"{suggested_action}\n{response}"
+  # Remember not to append sentiment to the response
   if sentiment_result != "negative":
     save_learned_phrase(text, sentiment_result)
 
   return response
-
+  
 
 # Create TKinter popup to handle undetermined sentiment
 def create_sentiment_buttons(user_text):
