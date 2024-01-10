@@ -1,130 +1,100 @@
 #pip install spacy
 #python -m spacy download en_core_web_sm
 
-# Import necessary libraries
-import spacy
-import sys
-import random
-import json
+      # Updated file: main.py
 
-# Function to save words to a file
-def save_words():
-    with open('words.json', 'w') as f:
-        words_to_save = {
-            'nouns': nouns,
-            'verbs': verbs,
-            'descriptors': descriptors,
-            'conjunctions': conjunctions
-        }
-        json.dump(words_to_save, f)
+      # Import necessary libraries
+      import spacy
+      import sys
+      import random
+      import json
+      import logging
 
-# Function to load words from a file
-def load_words():
-    try:
-        with open('words.json', 'r') as f:
-            loaded_words = json.load(f)
-            return (
-                loaded_words.get('nouns', []),
-                loaded_words.get('verbs', []),
-                loaded_words.get('descriptors', []),
-                loaded_words.get('conjunctions', [])
-            )
-    except FileNotFoundError:
-        return [], [], [], []  # Return empty lists if the file doesn't exist
+      # Initialize logging
+      logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 
-# Load the spaCy model
-nlp = spacy.load("en_core_web_sm")
+      # Load the spaCy model
+      nlp = spacy.load("en_core_web_sm")
 
-# Load the words at the beginning of your program
-nouns, verbs, descriptors, conjunctions = load_words()
+      # Function to save words to a file
+      def save_words():
+          with open('words.json', 'w') as f:
+              words_to_save = {
+                  'nouns': nouns,
+                  'verbs': verbs,
+                  'descriptors': descriptors,
+                  'conjunctions': conjunctions
+              }
+              json.dump(words_to_save, f)
 
-# Function to process and respond to the input text
-def get_response(text, doc):
-    text_lower = text.lower()
-    # Check for greetings
-    if any(greet in text_lower for greet in greetings):
-        return random.choice(["Hello!", "Hi there!", "Hey!"])
-    # Check for farewells
-    if any(farewell in text_lower for farewell in farewells):
-        return random.choice(["Goodbye!", "See you later!", "Farewell then!"])
-    # Check for wellbeing questions
-    if any(well in text_lower for well in wellbeing):
-        return "I'm just a program, but I'm functioning properly. How about you?"
-    # Check for weather related conversation
-    if any(weather in text_lower for weather in weather_statements):
-        return "I don't have the latest weather updates but I hope it's pleasant for you!"
-    # Default response
-    return "That's interesting. Tell me more!"
+      # Function to load words from a file
+      def load_words():
+          try:
+              with open('words.json', 'r') as f:
+                  loaded_words = json.load(f)
+                  return (
+                      loaded_words.get('nouns', []),
+                      loaded_words.get('verbs', []),
+                      loaded_words.get('descriptors', []),
+                      loaded_words.get('conjunctions', [])
+                  )
+          except FileNotFoundError:
+              return [], [], [], []  # Return empty lists if the file doesn't exist
 
-# Function to add a word to a list if it's not already present
-def add_to_list(word, word_list):
-    if word not in word_list:
-        word_list.append(word)
-        save_words()
+      # Load words at the beginning of the program
+      nouns, verbs, descriptors, conjunctions = load_words()
 
-# Function for feedback interaction and learning
-def get_feedback_and_learn(text, response):
-    print(response)
-    feedback = input("Was my response appropriate? (yes/no): ").strip().lower()
-    if feedback == 'no':
-        print("I am still learning. How should I respond to '{}'?".format(text))
-        correct_response = input("Correct response: ").strip()
-        # Here you could implement further learning logic based on the correct response
-        # For example, you can reprocess the text and add new words appropriately
-        doc = nlp(text)
-        update_vocabulary(doc)
+      # Predefined words
+      greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
+      farewells = ["bye", "goodbye", "see you later", "farewell"]
 
-# Function to update vocabulary with new words from the feedback
-def update_vocabulary(doc):
-    for token in doc:
-        if token.pos_ == 'NOUN' and token.text not in nouns:
-            add_to_list(token.text, nouns)
-        elif token.pos_ == 'VERB' and token.text not in verbs:
-            add_to_list(token.text, verbs)
-        elif token.pos_ == 'ADJ' and token.text not in descriptors:
-            add_to_list(token.text, descriptors)
-        elif token.pos_ == 'CONJ' and token.text not in conjunctions:
-            add_to_list(token.text, conjunctions)
+      # Function to process and respond to input text
+      def get_response(text):
+          # Check for greetings, farewells, etc.
+          # ...
 
-# Define lists with predefined words
-greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
-farewells = ["bye", "goodbye", "see you later", "farewell"]
-wellbeing = ["how are you", "how's it going", "what's up"]
-weather_statements = ["weather", "rain", "sunny", "cloudy", "hot", "cold"]
-nouns += ['dog', 'cat', 'mouse', 'house', 'car']
-verbs += ['runs', 'jumps', 'sleeps', 'drives', 'sits']
-descriptors += ['quick', 'lazy', 'sleepy', 'happy', 'sad']
-conjunctions += ['and', 'or', 'but', 'because', 'if', 'while', 'although']
+      # Function to add a word to a list if it's not already present, using lemmatization
+      def add_to_list(word, word_list, pos):
+          lemma = nlp(word)[0].lemma_
+          if lemma not in (nlp(w)[0].lemma_ for w in word_list):
+              word_list.append(word)
+              logging.info(f"Added word '{word}' to {pos} list.")
+              print(f"Added word '{word}' to {pos} list.")
+          else:
+              print(f"Word '{word}' already in list.")
 
-# Main loop for the program
-while True:
-    text = input("Enter the text that you want to check: ")
-    if text.lower() == 'quit':
-        sys.exit()
-    words = text.split()
-    cheat = False
-    for word in words:
-        # Convert word to lowercase
-        word_lower = word.lower()
-        if word_lower in (w.lower() for w in descriptors) or \
-           word_lower in (w.lower() for w in nouns) or \
-           word_lower in (w.lower() for w in verbs) or \
-           word_lower in (w.lower() for w in conjunctions):
-            print("Descriptor, noun, verb, or conjunction found.")
-            cheat = True
-            break
+      # Function to manage word lists
+      def manage_words(command, word, pos):
+          global nouns, verbs, descriptors, conjunctions
+          word_lists = {
+              'noun': nouns,
+              'verb': verbs,
+              'descriptor': descriptors,
+              'conjunction': conjunctions
+          }
+          if command == 'add':
+              add_to_list(word, word_lists[pos], pos)
+              save_words()  # Save after manual word addition
+          elif command == 'remove':
+              if word in word_lists[pos]:
+                  word_lists[pos].remove(word)
+                  logging.info(f"Removed word '{word}' from {pos} list.")
+                  print(f"Removed word '{word}' from {pos} list.")
+                  save_words()  # Save after manual word removal
+          print(word_lists[pos])  # Display updated list
 
-    if not cheat:
-        doc = nlp(text)
-        for token in doc:
-            if token.pos_ == 'NOUN' and token.text not in nouns:
-                add_to_list(token.text, nouns)
-            elif token.pos_ == 'VERB' and token.text not in verbs:
-                add_to_list(token.text, verbs)
-            elif token.pos_ == 'ADJ' and token.text not in descriptors:
-                add_to_list(token.text, descriptors)
-            elif token.pos_ == 'CONJ' and token.text not in conjunctions:
-                add_to_list(token.text, conjunctions)
+      # Main loop for the program
+      while True:
+          text = input("\nEnter text (or type 'manage' to add/remove words): ")
 
-        response = get_response(text, doc)
-        get_feedback_and_learn(text, response)
+          if text.lower() == 'quit':
+              save_words()  # Save words before quitting
+              sys.exit()
+          elif text.lower() == 'manage':
+              command = input("Enter command (add/remove): ").lower()
+              pos = input("Enter part of speech (noun/verb/descriptor/conjunction): ").lower()
+              word = input("Enter the word: ")
+              manage_words(command, word, pos)    
+          else:
+              # Process user input text and get a response
+              # ...
