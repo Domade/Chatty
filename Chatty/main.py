@@ -190,7 +190,7 @@ def get_response(text):
     return "Checking sentiment..."
 
   else:
-    suggested_action = "Unable to determine sentiment."
+    suggested_action = "This is a neutral response."
   logging.info(f"Suggested Action: {suggested_action}")  # Log the AI's action
   print(f"Suggested Action: {suggested_action}")
   return suggested_action
