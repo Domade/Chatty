@@ -14,11 +14,11 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 
 # Initialize the SentimentIntensityAnalyzer
 sia = SentimentIntensityAnalyzer()
+
 def get_sentiment(text):
     score = sia.polarity_scores(text)
     positive_score = score['pos']
     return positive_score > 0.1  # Threshold for positive sentiment, adjustable based on requirements.
-
 
 # Initialize logging
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -58,31 +58,61 @@ nouns, verbs, descriptors, conjunctions = load_words()
 greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
 farewells = ["bye", "goodbye", "see you later", "farewell"]
 
-# Now modify the existing get_response function within 'main.py':
+# Initialize a global dictionary to store learned actions
+learned_actions = {"positive": [], "negative": []}
+
+# Function to save learned actions to a file
+def learn_action(is_positive, action):
+    category = "positive" if is_positive else "negative"
+    if action not in learned_actions[category]:
+        learned_actions[category].append(action)
+
+    with open('learned_actions.json', 'w') as la:
+        json.dump(learned_actions, la)
+
+# Function to load learned actions from a file
+def load_learned_actions():
+    try:
+        with open('learned_actions.json', 'r') as la:
+            return json.load(la)
+    except FileNotFoundError:
+        return {"positive": [], "negative": []}
+
+# Load learned actions at the beginning of the program
+learned_actions = load_learned_actions()
+
+# Consolidated get_response function
 def get_response(text):
-    # Your existing greeting and farewell checks would go here
-    # Now, include the sentiment check to determine the response
+    # Check for greeting and farewells
+    if any(greeting in text.lower() for greeting in greetings):
+        return f"{random.choice(greetings).capitalize()}! How can I help you today?"
+    elif any(farewell in text.lower() for farewell in farewells):
+        return f"{random.choice(farewells).capitalize()}! Have a great day!"
+
+    # Attempt to use learned actions based on sentiment
     is_action_good = get_sentiment(text)
     suggested_action = "This is the default suggested action."
     if is_action_good:
-        response = "Action seems good!"
-        suggested_action = "This is a positive suggested action."
+        suggested_action = random.choice(learned_actions["positive"]) if learned_actions["positive"] else "This is a positive suggested action."
     else:
-        response = "Action might not be good."
-        suggested_action = "This is a negative suggested action."
+        suggested_action = random.choice(learned_actions["negative"]) if learned_actions["negative"] else "This is a negative suggested action."
+
     print(f"Suggested Action: {suggested_action}")
     confirmation = input("Is this a good action? (yes/no): ").strip().lower()
-    feedback = ""
+
     if confirmation == 'yes':
+        learn_action(is_action_good, suggested_action)
         feedback = "You confirmed that this is a good action."
-        # Implement logic to remember this feedback
     elif confirmation == 'no':
+        learn_action(not is_action_good, suggested_action)
         feedback = "You indicated that this is not a good action."
-        # Implement logic to remember this feedback
     else:
         feedback = "Invalid response. Please respond with 'yes' or 'no'."
+
+    logging.info(feedback) # Log user feedback
     print(feedback)
-    return response  # The function now returns the response based on sentiment
+    return suggested_action
+
 # Function to add a word to a list if it's not already present, using lemmatization
 def add_to_list(word, word_list, pos):
     lemma = nlp(word)[0].lemma_
@@ -128,52 +158,3 @@ while True:
     else:
         # Process user input text and get a response
         get_response(text)
-
-  # Initialize a global dictionary to store learned actions
-  learned_actions = {"positive": [], "negative": []}
-  def learn_action(is_positive, action):
-      category = "positive" if is_positive else "negative"
-      if action not in learned_actions[category]:
-          learned_actions[category].append(action)
-      with open('learned_actions.json', 'w') as la:
-          json.dump(learned_actions, la)
-  def load_learned_actions():
-      try:
-          with open('learned_actions.json', 'r') as la:
-              return json.load(la)
-      except FileNotFoundError:
-          return {"positive": [], "negative": []}
-  # Load learned actions at the beginning of the program
-  learned_actions = load_learned_actions()
-  # Modify get_response to use learned actions
-  def get_response(text):
-      # Check for greeting and farewells
-      if any(greeting in text.lower() for greeting in greetings):
-          return f"{random.choice(greetings).capitalize()}! How can I help you today?"
-      elif any(farewell in text.lower() for farewell in farewells):
-          return f"{random.choice(farewells).capitalize()}! Have a great day!"
-
-      # Sentiment analysis and response
-      is_action_good = get_sentiment(text)
-      suggested_action = "This is the default suggested action."
-      if is_action_good:
-          suggested_action = random.choice(learned_actions["positive"]) if learned_actions["positive"] else "This is a positive suggested action."
-      else:
-          suggested_action = random.choice(learned_actions["negative"]) if learned_actions["negative"] else "This is a negative suggested action."
-
-      print(f"Suggested Action: {suggested_action}")
-      confirmation = input("Is this a good action? (yes/no): ").strip().lower()
-
-      if confirmation == 'yes':
-          learn_action(is_action_good, suggested_action)
-          feedback = "You confirmed that this is a good action."
-      elif confirmation == 'no':
-          learn_action(not is_action_good, suggested_action)
-          feedback = "You indicated that this is not a good action."
-      else:
-          feedback = "Invalid response. Please respond with 'yes' or 'no'."
-
-      logging.info(feedback) # Log user feedback
-      print(feedback)
-      return suggested_action
-  # ... (rest of the existing code)
