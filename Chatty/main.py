@@ -175,7 +175,9 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 
 
 # Modified get_response function with simplified sentiment analysis
+# Modified get_response function with simplified sentiment analysis
 def get_response(text):
+  suggested_action = None  # Initialize suggested_action with None or an appropriate default
   # Check for swear words first
   sentiment, score = get_sentiment(text)
   if sentiment == "swear":
@@ -191,17 +193,29 @@ def get_response(text):
     return f"{random.choice(farewells).capitalize()}! Have a great day!"
 
   # Simplified sentiment analysis implementation
-  if sentiment[0] == "positive":
+  if sentiment == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
-  elif sentiment[0] == "negative":
+    logging.info(f"Suggested Action: {suggested_action}") 
+    # Log only if action is suggested
+    print(f"Suggested Action: {suggested_action}") 
+    # Print only if action is suggested
+  elif sentiment == "negative":
     suggested_action = "This is a negative response action."
     learn_action(False, suggested_action)
-  # Note: There's no handling for 'neutral' or 'undetermined' sentiment here,
-  # so you might want to add that if needed.
+    logging.info(f"Suggested Action: {suggested_action}")  
+    # Log only if action is suggested
+    print(f"Suggested Action: {suggested_action}")  
+    # Print only if action is suggested
 
-  logging.info(f"Suggested Action: {suggested_action}")  # Log the AI's action
-  print(f"Suggested Action: {suggested_action}")
+  # Handling for 'neutral' or 'undetermined' sentiment: example
+  # You can modify the following code according to your 
+  # need if you have to handle neutral sentiment.
+  if suggested_action is None:
+    logging.info("Neutral or undetermined sentiment detected.") 
+    print("Neutral or undetermined sentiment detected.") 
+    suggested_action = "This is a neutral or undetermined response action."
+
   return suggested_action
 
 
