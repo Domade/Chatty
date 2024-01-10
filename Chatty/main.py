@@ -178,15 +178,21 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 # Modified get_response function with simplified sentiment analysis
 def get_response(text):
   suggested_action = None
-  # Initialize suggested_action with None or an appropriate default
-  # Check for swear words first
-  sentiment, score = get_sentiment(text)
+  # Create indices of words in the input text
   indices = [i for i, _ in enumerate(text.split())]
-  print(indices)
+  # Get sentiment and score of the input text
+  sentiment, score = get_sentiment(text)
+
+  # Print the indices regardless of sentiment
+
+  # If a swear word is detected, modify the indices as required
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
+    indices += [9]  # Add [9] to the indices list
 
     return "Do not speak to me that way."
+
+  print(indices)
 
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
