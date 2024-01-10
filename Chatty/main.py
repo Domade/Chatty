@@ -90,21 +90,16 @@ def load_words():
     with open('words.json', 'r') as f:
       loaded_words = json.load(f)
       return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
-              loaded_words.get('descriptors',
-                               []), loaded_words.get('conjunctions', []),
-              loaded_words.get('positive_words',
-                               []), loaded_words.get('negative_words', []),
-              loaded_words.get('swear_words',
-                               []))  # Adding swear_words to the returned tuple
+              loaded_words.get('descriptors', []), loaded_words.get('conjunctions', []),
+              loaded_words.get('positive_words', []), loaded_words.get('negative_words', []),
+              loaded_words.get('swear_words', []))  # Adding swear_words to the returned tuple
   except FileNotFoundError:
-    return [], [], [], [], [], [], [
-    ]  # Return empty lists if the file doesn't exist
+    return [], [], [], [], [], [], []  # Return empty lists if the file doesn't exist
 
 
 # Load words at the beginning of the program
 # Update the global lists including the sentiment lists and swear_words list
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words = load_words(
-)
+nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words = load_words()
 # Predefined words
 greetings = [
     "hello", "hi", "hey", "good morning", "good afternoon", "good evening"
@@ -122,20 +117,23 @@ def learn_action(is_positive, action):
   with open('learned_actions.json', 'w') as la:
     json.dump(learned_actions, la)
   if is_positive:
-    # Your code to handle the positive sentiment
     logging.info(f"User indicated positive sentiment: {action}")
     print(f"User indicated positive sentiment: {action}")
-    # Optionally save this action or increment some counter etc.
+  else:
+    logging.info(f"User indicated negative sentiment: {action}")
+    print(f"User indicated negative sentiment: {action}")
 
 
 # Function to manage word lists
 def manage_words(command, word, pos):
-  global nouns, verbs, descriptors, conjunctions
+  global nouns, verbs, descriptors, conjunctions, positive_words, negative_words
   word_lists = {
       'noun': nouns,
       'verb': verbs,
       'descriptor': descriptors,
-      'conjunction': conjunctions
+      'conjunction': conjunctions,
+      'positive': positive_words,
+      'negative': negative_words
   }
   if command == 'add':
     if word not in word_lists[pos]:
@@ -154,131 +152,36 @@ def manage_words(command, word, pos):
   print(word_lists[pos])  # Display updated list
 
 
-# Function to add sentiment words to the list
-def manage_sentiment_words(command, sentiment, word):
-  global positive_words, negative_words
-  sentiment_list = positive_words if sentiment == 'positive' else negative_words
-
-  # Check if the word should be added
-  if command == 'add' and word not in sentiment_list:
-    sentiment_list.append(word)
-    logging.info(f"Added word '{word}' to {sentiment} sentiment list.")
-    print(f"Added word '{word}' to {sentiment} sentiment list.")
-  elif command == 'remove' and word in sentiment_list:
-    sentiment_list.remove(word)
-    logging.info(f"Removed word '{word}' from {sentiment} sentiment list.")
-    print(f"Removed word '{word}' from {sentiment} sentiment list.")
-  else:
-    print(
-        f"Word '{word}' is already in the {sentiment} sentiment list or cannot be found."
-    )
-  # Save the lists to the file system
-  save_sentiment_words(sentiment_list, sentiment)
-
-
-def save_sentiment_words(sentiment_words, sentiment):
-  try:
-    with open('words.json', 'r+') as f:
-      words = json.load(f)
-      if sentiment == 'positive':
-        words['positive_words'] = sentiment_words
-      else:
-        words['negative_words'] = sentiment_words
-      f.seek(0)
-      f.truncate()
-      json.dump(words, f)
-  except FileNotFoundError:
-    print("The words.json file does not exist. Creating a new one.")
-    with open('words.json', 'w') as f:
-      words = {'positive_words': [], 'negative_words': []}
-      words[sentiment + '_words'] = sentiment_words
-      json.dump(words, f)
-
-
-# Modify load_words function
-def load_words():
-  try:
-    with open('words.json', 'r') as f:
-      loaded_words = json.load(f)
-      # Include the positive and negative words lists in the return statement
-      return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
-              loaded_words.get('descriptors',
-                               []), loaded_words.get('conjunctions', []),
-              loaded_words.get('positive_words',
-                               []), loaded_words.get('negative_words', []))
-  except FileNotFoundError:
-    return [], [], [], [], [], [
-    ]  # Return empty lists if the file doesn't exist
-
-
-# Update the global lists including the sentiment lists
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_words(
-)
-
-
-# Modified get_response function with sentiment analysis and word type scoring
-def get_response(text):
-  # Using the analyze_text function to get both types of analysis
-  sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
-  # If a swear word is detected, early return response
-  if sentiment_result == "swear":
-    logging.warning(f"Swear word detected: {text}")
-    return "I'm unable to respond to that."
-
-  # Handle greetings and farewells
-  if any(greeting in text.lower() for greeting in greetings):
-    response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
-  elif any(farewell in text.lower() for farewell in farewells):
-    response = f"{random.choice(farewells).capitalize()}! Have a great day!"
-  else:
-    response = "How can I assist you?"
-
-  # Appending additional analysis information
-  response += f"\nSentiment: {sentiment_result}, " \
-              f"Sentiment Scores: {sentiment_scores}, " \
-              f"Word Type Scores: {word_type_scores}"
-
-  # Handling sentiment-associated actions
-  if sentiment_result == "positive":
-    suggested_action = "This is a positive response action."
-    learn_action(True, suggested_action)
-    logging.info(f"Suggested Action: {suggested_action}")
-    response = f"{suggested_action}\n{response}"
-  elif sentiment_result == "negative":
-    suggested_action = "This is a negative response action."
-    learn_action(False, suggested_action)
-    logging.info(f"Suggested Action: {suggested_action}")
-    response = f"{suggested_action}\n{response}"
-
-  return response
-
-
-# Create TKinter popup to handle undetermined sentiment
-def create_sentiment_buttons(user_text):
-
-  def close_popup():
-    popup.destroy()
-
-  def handle_positive_sentiment():
-    # Here you can handle the positive sentiment, e.g., by saving it somewhere
-    learn_action(True, "User indicated positive sentiment.")
-    close_popup()
-
-  popup = tk.Tk()
-  popup.title("Sentiment Undetermined")
-  tk.Label(popup, text="Unable to determine sentiment.").pack()
-  tk.Button(popup,
-            text="Sentiment is Positive",
-            command=handle_positive_sentiment).pack()
-  tk.Button(popup, text="Sentiment is Negative", command=close_popup).pack()
-  popup.mainloop()
-
-
 # Function to handle button click
 def on_submit():
   user_text = text_entry.get()
-  response = get_response(user_text)
-  messagebox.showinfo("Response", response)
+  response, sentiment_scores, word_type_scores = analyze_text(user_text)
+  print("Sentiment Scores:", sentiment_scores, "Word Type Scores:", word_type_scores)
+  display_response = get_response(user_text)
+  messagebox.showinfo("Response", display_response)
+
+
+# Modify get_response function to not include sentiment and word type scores in the response
+def get_response(text):
+  sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
+  if sentiment_result == "swear":
+    logging.warning(f"Swear word detected: {text}")
+    return "I'm unable to respond to that."
+  if any(greeting in text.lower() for greeting in greetings):
+    return f"{random.choice(greetings).capitalize()}! How can I help you today?"
+  elif any(farewell in text.lower() for farewell in farewells):
+    return f"{random.choice(farewells).capitalize()}! Have a great day!"
+  else:
+    response = "How can I assist you?"
+    if sentiment_result == "positive":
+      suggested_action = "This is a positive response action."
+      learn_action(True, suggested_action)
+      response = f"{suggested_action} {response}"
+    elif sentiment_result == "negative":
+      suggested_action = "This is a negative response action."
+      learn_action(False, suggested_action)
+      response = f"{suggested_action} {response}"
+  return response
 
 
 # TKinter popup creation
@@ -295,5 +198,4 @@ def create_popup():
 
 
 if __name__ == "__main__":
-  # Create the popup only if this is the main module being run
   create_popup()
