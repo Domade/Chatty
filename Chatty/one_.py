@@ -1,68 +1,76 @@
-import spacy
-import sys
-
 #pip install spacy
 #python -m spacy download en_core_web_sm
 
-# Load a pre-trained English model from spaCy
-nlp = spacy.load('en_core_web_sm')
+# Import necessary libraries
+import spacy
+import sys
+import random
 
-# Checking and updating descriptors
-def add_descriptor(word):
-    if word not in descriptors:
-        descriptors.append(word)
-        # Save descriptors to a file
-        with open('descriptors.txt', 'w') as f:
-            for descriptor in descriptors:
-                f.write(f"{descriptor}\n")
+# Load the spaCy model
+nlp = spacy.load("en_core_web_sm")
 
-# Load descriptors from a file if exists
-try:
-    with open('descriptors.txt', 'r') as f:
-        descriptors = f.read().splitlines()
-except FileNotFoundError:
-    descriptors = []
-
+# Define lists with predefined words
+greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
+farewells = ["bye", "goodbye", "see you later", "farewell"]
+wellbeing = ["how are you", "how's it going", "what's up"]
+weather_statements = ["weather", "rain", "sunny", "cloudy", "hot", "cold"]
 nouns = ['dog', 'cat', 'mouse', 'house', 'car']
 verbs = ['runs', 'jumps', 'sleeps', 'drives', 'sits']
+descriptors = ['quick', 'lazy', 'sleepy', 'happy', 'sad']
 conjunctions = ['and', 'or', 'but', 'because', 'if', 'while', 'although']
 
-# Existing binary search function
-# ...
-# Assume binary_search function is defined above
+# Function to process and respond to the input text
+def get_response(text, doc):
+    text_lower = text.lower()
+    # Check for greetings
+    if any(greet in text_lower for greet in greetings):
+        return random.choice(["Hello!", "Hi there!", "Hey!"])
+    # Check for farewells
+    if any(farewell in text_lower for farewell in farewells):
+        return random.choice(["Goodbye!", "See you later!", "Farewell then!"])
+    # Check for wellbeing questions
+    if any(well in text_lower for well in wellbeing):
+        return "I'm just a program, but I'm functioning properly. How about you?"
+    # Check for weather related conversation
+    if any(weather in text_lower for weather in weather_statements):
+        return "I don't have the latest weather updates but I hope it's pleasant for you!"
+    # Default response
+    return "That's interesting. Tell me more!"
 
+# Function to add a word to a list if it's not already present
+def add_to_list(word, word_list):
+    if word not in word_list:
+        word_list.append(word)
+
+# Main loop for the program
 while True:
     text = input("Enter the text that you want to check: ")
     if text.lower() == 'quit':
-        sys.exit()  # Terminate the program immediately
-
-    words = text.split()  # Split the input text into individual words
-    doc = nlp(text)  # Process the text with spaCy
-
-    # Reset 'cheat' flag for the current iteration
+        sys.exit()
+    words = text.split()
     cheat = False
-
-    # Check each word using spaCy's POS tagger
-    for token in doc:
-        # If an adjective (descriptor) is found, check it against our current list
-        if token.pos_ == 'ADJ':
-            word = token.text.lower()
-            if word not in descriptors:
-                add_descriptor(word)
+    for word in words:
+        # Convert word to lowercase
+        word_lower = word.lower()
+        if word_lower in (w.lower() for w in descriptors) or \
+           word_lower in (w.lower() for w in nouns) or \
+           word_lower in (w.lower() for w in verbs) or \
+           word_lower in (w.lower() for w in conjunctions):
+            print("Descriptor, noun, verb, or conjunction found.")
             cheat = True
-            print("Descriptor found:", word)
             break
     
-    # Check for nouns, verbs, and conjunctions against the predefined lists
-    for word in words:
-        if binary_search(nouns, word.lower()) != -1 or binary_search(verbs, word.lower()) != -1 or \
-           binary_search(conjunctions, word.lower()) != -1:
-            cheat = True
-            print("Noun, verb, or conjunction found.")
-            break
-
     if not cheat:
-        print("What do you mean?")
-
-    # Continue with the rest of your program...
-    # ...
+        doc = nlp(text)
+        for token in doc:
+            if token.pos_ == 'NOUN' and token.text not in nouns:
+                add_to_list(token.text, nouns)
+            elif token.pos_ == 'VERB' and token.text not in verbs:
+                add_to_list(token.text, verbs)
+            elif token.pos_ == 'ADJ' and token.text not in descriptors:
+                add_to_list(token.text, descriptors)
+            elif token.pos_ == 'CONJ' and token.text not in conjunctions:
+                add_to_list(token.text, conjunctions)
+    
+        response = get_response(text, doc)
+        print(response)
