@@ -1,1 +1,6 @@
-{"neutral": ["Sentiment is neutral. Noted but no action taken."]}
+{}
+{
+    "positive": [],
+    "negative": [],
+    "neutral": ["Sentiment is neutral. Noted but no action taken."],
+  }
