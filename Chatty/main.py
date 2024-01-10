@@ -178,10 +178,13 @@ def get_response(text):
   indices = [i for i, _ in enumerate(text.split())]
   print(indices)
   # Check for swear words first
-  sentiment = get_sentiment(text)
+  sentiment, score = get_sentiment(text)
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
     return "Do not speak to me that way.", score
+
+    # Return the detected swear sentiment and the corresponding score
+
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
     return f"{random.choice(greetings).capitalize()}! How can I help you today?"
