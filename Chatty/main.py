@@ -176,17 +176,13 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 
 # Modified get_response function with simplified sentiment analysis
 def get_response(text):
-  # Split the text and print indices for all sentiments
-  indices = [i for i, _ in enumerate(text.split())]
-  print(indices)
   # Check for swear words first
   sentiment, score = get_sentiment(text)
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
+    indices = [i for i, _ in enumerate(text.split())]
     print(indices + [9])
     return "Do not speak to me that way."
-
-  # Return the detected swear sentiment and the corresponding score
 
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
@@ -195,18 +191,15 @@ def get_response(text):
     return f"{random.choice(farewells).capitalize()}! Have a great day!"
 
   # Simplified sentiment analysis implementation
-  sentiment = get_sentiment(text)
-  if sentiment == "positive":
+  if sentiment[0] == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
-  elif sentiment == "negative":
+  elif sentiment[0] == "negative":
     suggested_action = "This is a negative response action."
     learn_action(False, suggested_action)
-  elif sentiment == "undetermined":
-    create_sentiment_buttons(text)
-    return "Checking sentiment..."
-  else:
-    suggested_action = "This is a neutral response."
+  # Note: There's no handling for 'neutral' or 'undetermined' sentiment here,
+  # so you might want to add that if needed.
+
   logging.info(f"Suggested Action: {suggested_action}")  # Log the AI's action
   print(f"Suggested Action: {suggested_action}")
   return suggested_action
