@@ -1,12 +1,8 @@
-# pip install spacy nltk
-# python -m spacy download en_core_web_sm
-# python -m nltk.downloader vader_lexicon
 
 # create  words.json and learned_actions.json in main folder.
-# run main.py
+# run python main.py
 
 # Import necessary libraries
-import spacy
 import sys
 import random
 import json
@@ -28,9 +24,6 @@ def get_sentiment(text):
 logging.basicConfig(filename='app.log',
                     level=logging.INFO,
                     format='%(asctime)s - %(message)s')
-
-# Load the spaCy model
-nlp = spacy.load("en_core_web_sm")
 
 
 # Function to save words to a file
@@ -130,17 +123,6 @@ def get_response(text):
   return suggested_action
 
 
-# Function to add a word to a list if it's not already present, using lemmatization
-def add_to_list(word, word_list, pos):
-  lemma = nlp(word)[0].lemma_
-  if lemma not in (nlp(w)[0].lemma_ for w in word_list):
-    word_list.append(word)
-    logging.info(f"Added word '{word}' to {pos} list.")
-    print(f"Added word '{word}' to {pos} list.")
-  else:
-    print(f"Word '{word}' already in list.")
-
-
 # Function to manage word lists
 def manage_words(command, word, pos):
   global nouns, verbs, descriptors, conjunctions
@@ -151,8 +133,13 @@ def manage_words(command, word, pos):
       'conjunction': conjunctions
   }
   if command == 'add':
-    add_to_list(word, word_lists[pos], pos)
-    save_words()  # Save after manual word addition
+    if word not in word_lists[pos]:
+      word_lists[pos].append(word)
+      logging.info(f"Added word '{word}' to {pos} list.")
+      print(f"Added word '{word}' to {pos} list.")
+      save_words()  # Save after manual word addition
+    else:
+      print(f"Word '{word}' already in list.")
   elif command == 'remove':
     if word in word_lists[pos]:
       word_lists[pos].remove(word)
