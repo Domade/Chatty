@@ -22,7 +22,9 @@ def get_sentiment(text):
   # Check each word in the text
   for word in text.lower().split():
     if word in swear_words:
-      return "swear", [9]  # Return the detected swear sentiment and the corresponding score as an array
+      return "swear", [
+          9
+      ]  # Return the detected swear sentiment and the corresponding score as an array
     if word in positive_words:
       score += 1
     elif word in negative_words:
@@ -180,10 +182,11 @@ def get_response(text):
   # Check for swear words first
   sentiment, score = get_sentiment(text)
   if sentiment == "swear":
-      logging.warning(f"Swear word detected: {text}")
-      return "Do not speak to me that way."
+    logging.warning(f"Swear word detected: {text}")
+    print(indices + [9])
+    return "Do not speak to me that way."
 
-    # Return the detected swear sentiment and the corresponding score
+  # Return the detected swear sentiment and the corresponding score
 
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
