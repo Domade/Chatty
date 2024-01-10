@@ -273,8 +273,19 @@ def get_response(text):
   if sentiment_result != "negative":
     save_learned_phrase(text, sentiment_result)
 
+  # Call response_results here to print the sentiment and word type scores
+  response_results(sentiment_result, sentiment_scores, word_type_scores)
+
   # Response is returned for pop-up without revealing sentiment analysis
   return response
+
+
+# Function to print the results of the sentiment analysis
+def response_results(sentiment_result, sentiment_scores, word_type_scores):
+  results = f"Sentiment: {sentiment_result}, " \
+            f"Sentiment Scores: {sentiment_scores}, " \
+            f"Word Type Scores: {word_type_scores}"
+  print(results)
 
 
 # Create TKinter popup to handle undetermined sentiment
