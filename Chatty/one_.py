@@ -5,6 +5,35 @@
 import spacy
 import sys
 import random
+import json
+# Function to save words to a file
+def save_words():
+    with open('words.json', 'w') as f:
+        words_to_save = {
+            'nouns': nouns,
+            'verbs': verbs,
+            'descriptors': descriptors,
+            'conjunctions': conjunctions
+        }
+        json.dump(words_to_save, f)
+# Function to load words from a file
+def load_words():
+    try:
+        with open('words.json', 'r') as f:
+            loaded_words = json.load(f)
+            return (
+                loaded_words.get('nouns', []),
+                loaded_words.get('verbs', []),
+                loaded_words.get('descriptors', []),
+                loaded_words.get('conjunctions', [])
+            )
+    except FileNotFoundError:
+        return [], [], [], []  # Return empty lists if the file doesn't exist
+# Load the words at the beginning of your program
+nouns, verbs, descriptors, conjunctions = load_words()
+# ... rest of your program ...
+# Save the words at the end of your program or after updating any list
+save_words()
 
 # Load the spaCy model
 nlp = spacy.load("en_core_web_sm")
@@ -59,7 +88,7 @@ while True:
             print("Descriptor, noun, verb, or conjunction found.")
             cheat = True
             break
-    
+
     if not cheat:
         doc = nlp(text)
         for token in doc:
@@ -71,6 +100,6 @@ while True:
                 add_to_list(token.text, descriptors)
             elif token.pos_ == 'CONJ' and token.text not in conjunctions:
                 add_to_list(token.text, conjunctions)
-    
+
         response = get_response(text, doc)
         print(response)
