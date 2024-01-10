@@ -172,16 +172,17 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 
 # Modified get_response function with simplified sentiment analysis
 def get_response(text):
+  # Split the text and print indices for all sentiments
+  indices = [i for i, _ in enumerate(text.split())]
+  print(indices)
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
     return f"{random.choice(greetings).capitalize()}! How can I help you today?"
   elif any(farewell in text.lower() for farewell in farewells):
     return f"{random.choice(farewells).capitalize()}! Have a great day!"
+
   # Simplified sentiment analysis implementation
   sentiment = get_sentiment(text)
-  print(text.split())
-  indices = [i for i, _ in enumerate(text.split())]
-  print(indices)
   if sentiment == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
@@ -191,7 +192,6 @@ def get_response(text):
   elif sentiment == "undetermined":
     create_sentiment_buttons(text)
     return "Checking sentiment..."
-
   else:
     suggested_action = "This is a neutral response."
   logging.info(f"Suggested Action: {suggested_action}")  # Log the AI's action
