@@ -1,0 +1,6 @@
+{
+    "nouns": ["exampleNoun1", "exampleNoun2"],
+    "verbs": ["exampleVerb1", "exampleVerb2"],
+    "descriptors": ["exampleDescriptor1", "exampleDescriptor2"],
+    "conjunctions": ["exampleConjunction1", "exampleConjunction2"]
+  }
