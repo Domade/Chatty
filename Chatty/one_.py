@@ -114,24 +114,24 @@ def manage_words(command, word, pos):
   print(word_lists[pos])  # Display updated list
 
   # Main loop for the program
-  while True:
-    text = input("\nEnter text (or type 'manage' to add/remove words): ")
-    if text.lower() == 'quit':
-      save_words()  # Save words before quitting
-      sys.exit()
-    elif text.lower() == 'manage':
-      command = input("Enter command (add/remove): ").lower()
-      pos = input(
-          "Enter part of speech (noun/verb/descriptor/conjunction):").lower()
-      word = input("Enter the word: ")
-      manage_words(command, word, pos)
-    else:
-      # Process user input text and get a response
-      response = get_response(text)
-      print(response)  # Print the response from the get_response function
-  # ... [rest of the code above remains unchanged] ...
+  if __name__ == "__main__":
+    while True:
+      text = input("\nEnter text (or type 'manage' to add/remove words): ")
+      if text.lower() == 'quit':
+        save_words()  # Save words before quitting
+        sys.exit()
+      elif text.lower() == 'manage':
+        command = input("Enter command (add/remove): ").lower()
+        pos = input("Enter part of speech (noun/verb/descriptor/conjunction):"
+                    ).lower()
+        word = input("Enter the word: ")
+        manage_words(command, word, pos)
+      else:
+        # Process user input text and get a response
+        response = get_response(text)
+        print(response)  # Print the response from the get_response function
   # Simplified sentiment analysis function
-  
+
   def get_sentiment(text):
     positive_words = ['good', 'great', 'awesome', 'happy', 'love']
     negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
