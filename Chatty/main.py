@@ -179,6 +179,7 @@ def get_response(text):
     return f"{random.choice(farewells).capitalize()}! Have a great day!"
   # Simplified sentiment analysis implementation
   sentiment = get_sentiment(text)
+  print(text.split())
   if sentiment == "positive":
     suggested_action = "This is a positive response action."
     learn_action(True, suggested_action)
