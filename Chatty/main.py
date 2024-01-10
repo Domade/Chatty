@@ -17,12 +17,12 @@ logging.basicConfig(filename='app.log',
 def get_sentiment(text):
   positive_words = ['good', 'great', 'awesome', 'happy', 'love']
   negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
-  swear_words = ['shit', 'swearword2', 'swearword3', 'etc']
+  swear_words = ['shit', 'damn', 'hell']  # Add your list of swear words here
   score = 0
   # Check each word in the text
   for word in text.lower().split():
     if word in swear_words:
-      return "swear"
+      return "swear", 9
     if word in positive_words:
       score += 1
     elif word in negative_words:
@@ -181,7 +181,7 @@ def get_response(text):
   sentiment = get_sentiment(text)
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
-    return "Do not speak to me that way."
+    return "Do not speak to me that way.", score
   # Check for greeting and farewells
   if any(greeting in text.lower() for greeting in greetings):
     return f"{random.choice(greetings).capitalize()}! How can I help you today?"
