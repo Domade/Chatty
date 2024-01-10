@@ -189,7 +189,7 @@ def get_response(text):
   if sentiment == "swear":
     logging.warning(f"Swear word detected: {text}")
     indices += [9]  # Add [9] to the indices list
-
+    print(indices)
     return "Do not speak to me that way."
 
   print(indices)
