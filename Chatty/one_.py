@@ -17,7 +17,7 @@ while True:
     text = input("Enter the text that you want to convert to speech: ")
     if text.lower() == 'quit':
         break
-    output = speech_synthesizer.speak_text_async(text).get()
+    
     # rest of the code
 
 
