@@ -126,20 +126,54 @@ def manage_words(command, word, pos):
       save_words()  # Save after manual word removal
   print(word_lists[pos])  # Display updated list
 
+  # Main loop for the program
+  while True:
+    text = input("\nEnter text (or type 'manage' to add/remove words): ")
+    if text.lower() == 'quit':
+      save_words()  # Save words before quitting
+      sys.exit()
+    elif text.lower() == 'manage':
+      command = input("Enter command (add/remove): ").lower()
+      pos = input(
+          "Enter part of speech (noun/verb/descriptor/conjunction):").lower()
+      word = input("Enter the word: ")
+      manage_words(command, word, pos)
+    else:
+      # Process user input text and get a response
+      response = get_response(text)
+      print(response)  # Print the response from the get_response function
+  # ... [rest of the code above remains unchanged] ...
+  # Simplified sentiment analysis function
+  def get_sentiment(text):
+    positive_words = ['good', 'great', 'awesome', 'happy', 'love']
+    negative_words = ['bad', 'sad', 'terrible', 'hate', 'unhappy']
+    if any(word in text.lower() for word in positive_words):
+      return "positive"
+    elif any(word in text.lower() for word in negative_words):
+      return "negative"
+    else:
+      return "neutral"
 
-# Main loop for the program
-while True:
-  text = input("\nEnter text (or type 'manage' to add/remove words): ")
+  # Modified get_response function with simplified sentiment analysis
+  def get_response(text):
+    # Check for greeting and farewells
+    if any(greeting in text.lower() for greeting in greetings):
+      return f"{random.choice(greetings).capitalize()}! How can I help you today?"
+    elif any(farewell in text.lower() for farewell in farewells):
+      return f"{random.choice(farewells).capitalize()}! Have a great day!"
 
-  if text.lower() == 'quit':
-    save_words()  # Save words before quitting
-    sys.exit()
-  elif text.lower() == 'manage':
-    command = input("Enter command (add/remove): ").lower()
-    pos = input(
-        "Enter part of speech (noun/verb/descriptor/conjunction): ").lower()
-    word = input("Enter the word: ")
-    manage_words(command, word, pos)
-  else:
-    # Process user input text and get a response
-    get_response(text)
+    # Simplified sentiment analysis implementation
+    sentiment = get_sentiment(text)
+    if sentiment == "positive":
+      suggested_action = "This is a positive response action."
+      learn_action(True, suggested_action)
+    elif sentiment == "negative":
+      suggested_action = "This is a negative response action."
+      learn_action(False, suggested_action)
+    else:
+      suggested_action = "Unable to determine sentiment."
+
+    logging.info(
+        f"Suggested Action: {suggested_action}")  # Log the AI's action
+    print(f"Suggested Action: {suggested_action}")
+    return suggested_action
