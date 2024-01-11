@@ -88,3 +88,15 @@
 2024-01-11 14:30:14,968 - Learned sentiment: None
 2024-01-11 14:30:14,968 - Response: How can I assist you?
 2024-01-11 14:30:14,968 - Final response: How can I assist you?
+2024-01-11 15:02:45,071 - Words loaded successfully.
+2024-01-11 15:02:45,075 - Learned actions loaded successfully.
+2024-01-11 15:04:57,136 - Processing input text: She loved the sound of raindrops
+2024-01-11 15:04:57,136 - Sentiment result: neutral
+2024-01-11 15:04:57,136 - Learned sentiment: None
+2024-01-11 15:04:57,136 - Response: How can I assist you?
+2024-01-11 15:04:57,136 - Final response: How can I assist you?
+2024-01-11 15:05:44,494 - Processing input text: He ran away from the circus.
+2024-01-11 15:05:44,494 - Sentiment result: neutral
+2024-01-11 15:05:44,494 - Learned sentiment: None
+2024-01-11 15:05:44,494 - Response: How can I assist you?
+2024-01-11 15:05:44,494 - Final response: How can I assist you?
