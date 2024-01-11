@@ -179,16 +179,19 @@ def check_learned_phrases(text, state):
 
 
 def get_response(text, state):
+  response = "How can I assist you?"
   try:
     # Log the input text
     logging.info(f"Processing input text: {text}")
-
+    # Analyze text for sentiment and word type scores
     sentiment_result, sentiment_scores, word_type_scores = analyze_text(
         text, state)
-    learned_sentiment = check_learned_phrases(text, state)
 
-    # Log the sentiment results
-    logging.info(f"Sentiment result: {sentiment_result}")
+    # Log the analysis results
+    logging.info(
+        f"Sentiment result: {sentiment_result}, Sentiment Scores: {sentiment_scores}, Word Type Scores: {word_type_scores}"
+    )
+    learned_sentiment = check_learned_phrases(text, state)
     logging.info(f"Learned sentiment: {learned_sentiment}")
 
     if any(greeting in text.lower()
@@ -199,23 +202,9 @@ def get_response(text, state):
       response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
     elif sentiment_result == "swear":
       response = "I'm unable to respond to that."
-    else:
-      response = "How can I assist you?"
+    elif learned_sentiment:
+      response = f"I have learned that this sentiment is typically {learned_sentiment}. How else may I assist?"
 
-    # If the response was determined by greeting or farewell, log the specific response
-    logging.info(f"Response: {response}")
-
-    if learned_sentiment is not None and learned_sentiment != "positive":
-      answer = messagebox.askyesno(
-          "Clarification", "Was the sentiment of the phrase positive?")
-      if answer:
-        learn_action(True, text, state)
-      else:
-        learn_action(False, text, state)
-    elif learned_sentiment is None and sentiment_result in [
-        "positive", "negative"
-    ]:
-      learn_action(sentiment_result == "positive", text, state)
     # Log the response before returning it
     logging.info(f"Final response: {response}")
   except Exception as e:
