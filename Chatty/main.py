@@ -43,6 +43,12 @@ learned_actions = {"positive": [], "negative": []}
 action_buffer = []
 
 
+# At the end of your script, add the definition for on_program_exit
+def on_program_exit():
+  # Your logic here...
+  print("Program exiting...")
+
+
 # Simplified sentiment analysis function
 def get_sentiment(text):
   # Load global sentiment word lists
