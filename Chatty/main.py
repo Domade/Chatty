@@ -206,6 +206,7 @@ def get_response(text, state):
         "positive", "negative"
     ]:
       learn_action(sentiment_result == "positive", text, state)
+      response = "I'm sorry, but an error occurred while generating a response."
     return response
   except Exception as e:
     logging.error(f"An error occurred in get_response: {e}")
@@ -237,10 +238,12 @@ def create_sentiment_buttons(user_text, state):
 def on_submit(state, text_entry):  # Accept state and text_entry as arguments
   try:
     user_input = text_entry.get()
+    # Get the automated response first and display it
+    automated_response = get_response(user_input, state)
+    messagebox.showinfo("Response", automated_response)
+    # Continue with analyzing, saving sentiment, and showing sentiment message in a separate thread
     threading.Thread(
-        target=lambda: get_response_and_save(user_input, state, text_entry
-                                             ),  # Pass text_entry as well
-        # Pass state to the function call
+        target=lambda: get_response_and_save(user_input, state, text_entry),
         daemon=True).start()
   except Exception as e:
     logging.error(f"An error occurred in on_submit: {e}")
