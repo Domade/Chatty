@@ -214,12 +214,13 @@ def get_response(text, state):
 
 def response_results(sentiment_result, sentiment_scores, word_type_scores):
   results = f"Sentiment: {sentiment_result}, " \
-        f"Sentiment Scores: {sentiment_scores}, " \
-        f"Word Type Scores: {word_type_scores}"
+      f"Sentiment Scores: {sentiment_scores}, " \
+      f"Word Type Scores: {word_type_scores}"
   print(results)
 
-  def create_sentiment_buttons(user_text, state):
-    learn_action(True, user_text, state)
+
+def create_sentiment_buttons(user_text, state):
+  learn_action(True, user_text, state)
 
   popup = tk.Tk()
   popup.title("Sentiment Undetermined")
