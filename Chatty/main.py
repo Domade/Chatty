@@ -324,6 +324,7 @@ def check_learned_phrases(text):
 
 
 # Modified get_response function to correctly handle neutral sentiment
+# Modified get_response function to correctly handle neutral sentiment
 def get_response(text):
   try:
     sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
@@ -332,16 +333,23 @@ def get_response(text):
     # Prioritize learned sentiment but prompt user if it's neutral and learned
     if learned_sentiment == "neutral":
       create_user_decide_popup(text)
-      return
+      return "Please decide on the sentiment of the phrase."
+
+    # If the sentiment is neutral and not learned, or learned as positive or negative, prompt the user
+    elif sentiment_result == "neutral" or learned_sentiment in ("positive",
+                                                                "negative"):
+      if learned_sentiment:
+        response = f"Learned response with a {learned_sentiment} sentiment."
+        messagebox.showinfo("Learned Sentiment", response)
+      else:
+        create_user_decide_popup(text)
+        return "Please decide on the sentiment of the phrase."
+
+    # Learned sentiment takes precedence if it is positive or negative
     elif learned_sentiment in ("positive", "negative"):
       response = f"Learned response with a {learned_sentiment} sentiment."
       messagebox.showinfo("Learned Sentiment", response)
       return response
-
-    # If the sentiment is neutral and not learned, prompt the user
-    if sentiment_result == "neutral":
-      create_user_decide_popup(text)
-      return
 
     # Handle specific cases such as swear words, greetings, farewells
     elif sentiment_result == "swear":
