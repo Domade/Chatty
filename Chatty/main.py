@@ -273,40 +273,44 @@ def create_user_decide_popup(user_text):
     popup.after(0, close_popup)
 
   # Modify the create_user_decide_popup function accordingly
-  def create_user_decide_popup(user_text):
+    # Modify the create_user_decide_popup function in main.py to ensure proper sequencing of pop-ups
 
-    def close_popup():
-      popup.destroy()
+    def create_user_decide_popup(user_text):
+        # previous code...
 
-    def handle_positive_sentiment():
-      save_learned_phrase(user_text, "positive")
-      learn_action(True, user_text)
-      close_popup()
+        def handle_positive_sentiment():
+            save_learned_phrase(user_text, "positive")
+            learn_action(True, user_text)
+            # close_popup call ensures that the first pop-up is closed before deciding sentiment
+            close_popup()  
+            # After handling a positive sentiment, ensure no other pop-up is immediately displayed
 
-    def ai_decide_sentiment():
-      sentiment_result = get_sentiment(user_text)[0]
-      if sentiment_result != "negative":
-        create_sentiment_buttons(user_text)
-      else:
-        messagebox.showinfo(
-            "Sentiment Decision",
-            "The sentiment is negative and will not be saved.")
-      popup.after(
-          0, close_popup)  # Schedule the popup to close in the main thread
+        def ai_decide_sentiment():
+            sentiment_result = get_sentiment(user_text)[0]
+            if sentiment_result != "negative":
+                # Before creating sentiment buttons, close the current pop-up
+                close_popup()
+                create_sentiment_buttons(user_text)
+            else:
+                messagebox.showinfo(
+                    "Sentiment Decision",
+                    "The sentiment is negative and will not be saved.")
+                # Ensuring we close the pop-up even when sentiment is negative
+                close_popup()
 
-    popup = tk.Tk()
-    popup.title("Your Input is Needed")
+        # Here we define the pop-up using top-level instead of creating a new Tk root
+        popup = tk.Toplevel()
+        popup.title("Your Input is Needed")
 
-    tk.Label(popup, text="We need your help with the sentiment.").pack()
-    tk.Button(popup,
-              text="This is Positive",
-              command=handle_positive_sentiment).pack()
-    tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
+        tk.Label(popup, text="We need your help with the sentiment.").pack()
+        tk.Button(popup, text="This is Positive", command=handle_positive_sentiment).pack()
+        tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
 
-    close_button = tk.Button(popup, text="Close", command=close_popup)
-    close_button.pack()
+        close_button = tk.Button(popup, text="Close", command=close_popup)
+        close_button.pack()
 
-    popup.mainloop()
+        popup.grab_set()  # this will direct all events to the pop-up
+        popup.focus_set()  # this will focus on the pop-up
 
 
 def check_learned_phrases(text):
