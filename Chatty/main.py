@@ -328,47 +328,45 @@ def get_response(text):
     sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
     learned_sentiment = check_learned_phrases(text)
 
-  # If there's a learned sentiment, it takes precedence, unless it's neutral
-  if learned_sentiment in ("positive", "negative"):
-    response = f"Learned response with a {learned_sentiment} sentiment."
-    messagebox.showinfo("Learned Sentiment", response)
+    # If there's a learned sentiment, it takes precedence, unless it's neutral
+    if learned_sentiment in ("positive", "negative"):
+      response = f"Learned response with a {learned_sentiment} sentiment."
+      messagebox.showinfo("Learned Sentiment", response)
+      return response
+
+    # Check for greetings and farewells before analyzing sentiment
+    if any(greeting in text.lower() for greeting in greetings):
+      return f"{random.choice(greetings).capitalize()}! How can I help you today?"
+    if any(farewell in text.lower() for farewell in farewells):
+      return f"{random.choice(farewells).capitalize()}! Have a great day!"
+
+    # Handle swear words specifically
+    if sentiment_result == "swear":
+      return "I'm unable to respond to that."
+
+    # If sentiment is neutral and not learned, ask the user to decide
+    if sentiment_result == "neutral" and not learned_sentiment:
+      create_user_decide_popup(text)
+      return "Please decide on the sentiment of the phrase."
+
+    # In all other cases, give a generic response and learn action if necessary
+    response = "How can I assist you?"
+    if sentiment_result == "negative":
+      learn_action(False, text)
+    elif sentiment_result == "positive":
+      learn_action(True, text)
+
+    # Save the learned phrase unless it's a neutral sentiment
+    if sentiment_result != "neutral":
+      save_learned_phrase(text, sentiment_result)
+
+    response_results(sentiment_result, sentiment_scores, word_type_scores)
+
     return response
 
-  # Check for greetings and farewells before analyzing sentiment
-  if any(greeting in text.lower() for greeting in greetings):
-    return f"{random.choice(greetings).capitalize()}! How can I help you today?"
-  if any(farewell in text.lower() for farewell in farewells):
-    return f"{random.choice(farewells).capitalize()}! Have a great day!"
-
-  # Handle swear words specifically
-  if sentiment_result == "swear":
-    return "I'm unable to respond to that."
-
-  # If sentiment is neutral and not learned, ask the user to decide
-  if sentiment_result == "neutral" and not learned_sentiment:
-    create_user_decide_popup(text)
-    return "Please decide on the sentiment of the phrase."
-
-  # In all other cases, give a generic response and learn action if necessary
-  response = "How can I assist you?"
-  if sentiment_result == "negative":
-    learn_action(False, text)
-  elif sentiment_result == "positive":
-    learn_action(True, text)
-
-  # Save the learned phrase unless it's a neutral sentiment
-  if sentiment_result != "neutral":
-    save_learned_phrase(text, sentiment_result)
-
-  response_results(sentiment_result, sentiment_scores, word_type_scores)
-
-except Exception as e:
-  logging.error(f"An error occurred in get_response: {e}")
-  return "I'm sorry, but an error occurred while generating a response."
-
-return response
-
-
+  except Exception as e:
+    logging.error(f"An error occurred in get_response: {e}")
+    return "I'm sorry, but an error occurred while generating a response."
 
 
 # Function to print the results of the sentiment analysis
