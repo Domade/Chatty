@@ -39,10 +39,6 @@ def load_words():
 nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words, greetings, farewells = load_words(
 )
 
-# Now that the function is defined, call load_words to initialize your word lists
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words, greetings, farewells = load_words(
-)
-
 # Initialize a global dictionary to store learned actions
 learned_actions = {"positive": [], "negative": []}
 # Create a buffer to prevent direct writing to file for every action
@@ -293,45 +289,46 @@ def check_learned_phrases(text):
 def get_response(text):
   sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
 
+
+  # Check if the phrase has been learned previously
   learned_sentiment = check_learned_phrases(text)
+  learned_response = None
   if learned_sentiment:
-    # Log the learned response to the console and return it
-    print(f"Learned response with a {learned_sentiment} sentiment: {text}")
-    return f"Learned response with a {learned_sentiment} sentiment."
+    logging.info(
+      f"Learned phrase detected: '{text}' with a {learned_sentiment} sentiment."
+  )
+  learned_response = f"Learned response with a {learned_sentiment} sentiment."
+
+  informed_user_of_learned = False
+
+
+
+  if sentiment_result == "neutral" and not learned_sentiment:
+    create_user_decide_popup(text)
+  if learned_sentiment:
+   messagebox.showinfo("Learned Sentiment", learned_response)
+  informed_user_of_learned = True
 
   if sentiment_result == "swear":
-    logging.warning(f"Swear word detected: {text}")
-    print("Swear word detected.")  # Print to console instead of pop-up
-    return "I'm unable to respond to that."
-
-  if any(greeting in text.lower() for greeting in greetings):
+    response = "I'm unable to respond to that."
+  elif any(greeting in text.lower() for greeting in greetings):
     response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
   elif any(farewell in text.lower() for farewell in farewells):
     response = f"{random.choice(farewells).capitalize()}! Have a great day!"
   else:
     response = "How can I assist you?"
 
-  # Print sentiment information to console, not included in pop-up
   if sentiment_result == "positive":
     learn_action(True, text)
-
-    print(f"Detected positive sentiment with the statement: {text}")
   elif sentiment_result == "negative":
     suggested_action = "This is a negative response action."
-    learn_action(False, suggested_action)
-    print(f"Detected negative sentiment with the statement: {text}")
+  learn_action(False, suggested_action)
 
-  # Only save phrase if not negative
   if sentiment_result != "negative":
     save_learned_phrase(text, sentiment_result)
 
-  if sentiment_result == "neutral":
-    print("The sentiment is neutral and requires user decision.")
-
-  # Call response_results here to print the sentiment and word type scores
   response_results(sentiment_result, sentiment_scores, word_type_scores)
 
-  # Response is returned for pop-up without revealing sentiment analysis
   return response
 
 
