@@ -100,3 +100,10 @@
 2024-01-11 15:05:44,494 - Learned sentiment: None
 2024-01-11 15:05:44,494 - Response: How can I assist you?
 2024-01-11 15:05:44,494 - Final response: How can I assist you?
+2024-01-11 15:07:16,858 - Words loaded successfully.
+2024-01-11 15:07:16,858 - Learned actions loaded successfully.
+2024-01-11 15:07:36,431 - Processing input text: She loved the sound of raindrops
+2024-01-11 15:07:36,431 - Sentiment result: neutral
+2024-01-11 15:07:36,431 - Learned sentiment: None
+2024-01-11 15:07:36,431 - Response: How can I assist you?
+2024-01-11 15:07:36,431 - Final response: How can I assist you?
