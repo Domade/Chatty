@@ -125,7 +125,7 @@ def get_sentiment(text):
       return "negative", [score]
     else:
       return "neutral", [0]
-      
+
 def get_word_type_scores(text):
 # Use state instance instead of global variables
     word_types = state.word_types
@@ -157,7 +157,7 @@ def create_user_decide_popup(user_text):
     def handle_positive_sentiment():
         learn_action(True, user_text)
         close_popup()
-   
+
     def ai_decide_sentiment():
         sentiment_result = get_sentiment(user_text)[0]
         if sentiment_result != "negative":
@@ -259,7 +259,7 @@ def create_sentiment_buttons(user_text):
             command=handle_positive_sentiment).pack()
   tk.Button(popup, text="Sentiment is Negative", command=close_popup).pack()
   popup.mainloop()
-  
+
   def handle_positive_sentiment():
     learn_action(True, user_text)
   popup.destroy()
@@ -299,20 +299,22 @@ def get_response_and_save(user_input):
 
     def on_program_exit():
       try:
-          # ... existing code to save the state
+        # ... existing code to save the state
       except Exception as e:
-          logging.error(f"Failed to save all data on exit: {e}")
+        logging.error(f"Failed to save all data on exit: {e}")
       finally:
-          if 'root' in globals():
-              root.destroy()  # Check if 'root' is defined before destroying it
-          print("Program exiting...")
-    if __name__ == "__main__":
-        state = GlobalState()  # Instantiate GlobalState
-        try:
-          # ... existing code for loading state and creating popup
-        
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-        else:
-            if 'root' in globals():
-                root.protocol("WM_DELETE_WINDOW", on_program_exit)  # Correct placement
+        if 'root' in globals():
+          root.destroy()  # Check if 'root' is defined before destroying it
+        print("Program exiting...")# Main Execution Corrections
+
+if __name__ == "__main__":
+    try:
+        # Your existing code
+        pass
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
+    else:
+        # The protocol settings are to be outside of the try-except block
+        if 'root' in globals():
+            root.protocol("WM_DELETE_WINDOW", on_program_exit)
+
