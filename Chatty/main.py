@@ -15,9 +15,6 @@ logging.basicConfig(filename='app.log',
                     format='%(asctime)s - %(message)s')
 
 
-# Simplified sentiment analysis function
-# [...Same as previous...]
-# Your other function definitions should be here
 # Function to load words from a file
 def load_words():
   try:
@@ -30,26 +27,26 @@ def load_words():
           loaded_words.get('conjunctions', []),
           loaded_words.get('positive_words', []),
           loaded_words.get('negative_words', []),
-          loaded_words.get('swear_words', [])  # Initialize swear_words list
-      )
+          loaded_words.get('swear_words', []),  # Initialize swear_words list
+          loaded_words.get('greetings', []),
+          loaded_words.get('farewells', []))
   except FileNotFoundError:
-    return [], [], [], [], [], [], [
+    return [], [], [], [], [], [], [], [], [
     ]  # Return empty lists if the file doesn't exist
 
 
 # Now that the function is defined, call load_words to initialize your word lists
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_words(
+nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words, greetings, farewells = load_words(
 )
+
+# Now that the function is defined, call load_words to initialize your word lists
+nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words, greetings, farewells = load_words(
+)
+
 # Initialize a global dictionary to store learned actions
 learned_actions = {"positive": [], "negative": []}
 # Create a buffer to prevent direct writing to file for every action
 action_buffer = []
-
-
-# At the end of your script, add the definition for on_program_exit
-def on_program_exit():
-  # Your logic here...
-  print("Program exiting...")
 
 
 # Simplified sentiment analysis function
@@ -388,6 +385,12 @@ def create_popup():
   submit_button = tk.Button(root, text="Submit", command=on_submit)
   submit_button.pack()
   root.mainloop()
+
+
+# At the end of your script, add the definition for on_program_exit
+def on_program_exit():
+  # Your logic here...
+  print("Program exiting...")
 
 
 # Main entry point
