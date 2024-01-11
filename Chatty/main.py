@@ -9,6 +9,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 import signal
+import threading  # Import threading for background tasks
 
 # Initialize logging
 logging.basicConfig(filename='app.log',
@@ -267,30 +268,43 @@ def create_user_decide_popup(user_text):
   def handle_positive_sentiment():
     save_learned_phrase(user_text, "positive")
     learn_action(True, user_text)
-    close_popup()
+    popup.after(0, close_popup)
 
-  def ai_decide_sentiment():
-    sentiment_result = get_sentiment(user_text)[0]
-    if sentiment_result != "negative":
-      create_sentiment_buttons(user_text)
-    else:
-      messagebox.showinfo("Sentiment Decision",
-                          "The sentiment is negative and will not be saved.")
-    close_popup()
+  # Modify the create_user_decide_popup function accordingly
+  def create_user_decide_popup(user_text):
 
-  popup = tk.Tk()
-  popup.title("Your Input is Needed")
+    def close_popup():
+      popup.destroy()
 
-  tk.Label(popup, text="We need your help with the sentiment.").pack()
+    def handle_positive_sentiment():
+      save_learned_phrase(user_text, "positive")
+      learn_action(True, user_text)
+      close_popup()
 
-  tk.Button(popup, text="This is Positive",
-            command=handle_positive_sentiment).pack()
-  tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
+    def ai_decide_sentiment():
+      sentiment_result = get_sentiment(user_text)[0]
+      if sentiment_result != "negative":
+        create_sentiment_buttons(user_text)
+      else:
+        messagebox.showinfo(
+            "Sentiment Decision",
+            "The sentiment is negative and will not be saved.")
+      popup.after(
+          0, close_popup)  # Schedule the popup to close in the main thread
 
-  close_button = tk.Button(popup, text="Close", command=close_popup)
-  close_button.pack()
+    popup = tk.Tk()
+    popup.title("Your Input is Needed")
 
-  popup.mainloop()
+    tk.Label(popup, text="We need your help with the sentiment.").pack()
+    tk.Button(popup,
+              text="This is Positive",
+              command=handle_positive_sentiment).pack()
+    tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
+
+    close_button = tk.Button(popup, text="Close", command=close_popup)
+    close_button.pack()
+
+    popup.mainloop()
 
 
 def check_learned_phrases(text):
@@ -392,14 +406,20 @@ def on_submit():
   global root
   try:
     user_input = text_entry.get()
-    response = get_response(user_input)
-    messagebox.showinfo("Response", response)
-    save_learned_actions_from_buffer()  # Save buffered actions
+    # Start the get_response and save operations as a background thread
+    threading.Thread(target=lambda: get_response_and_save(user_input),
+                     daemon=True).start()
   except Exception as e:
     logging.error(f"An error occurred in on_submit: {e}")
     messagebox.showerror("Error", str(e))
-  finally:
-    root.quit()  # Ensure the main Tkinter loop is terminated
+
+
+def get_response_and_save(user_input):
+  response = get_response(
+      user_input)  # This is unchanged from your existing code
+  messagebox.showinfo("Response", response)
+  save_learned_actions_from_buffer(
+  )  # This is unchanged from your existing code
 
 
 # TKinter popup creation
@@ -411,6 +431,7 @@ def create_popup():
   global text_entry
   text_entry = tk.Entry(root, width=50)
   text_entry.pack()
+  # Update the submit button to not call on_submit directly
   submit_button = tk.Button(root, text="Submit", command=on_submit)
   submit_button.pack()
   root.mainloop()
@@ -434,4 +455,5 @@ if __name__ == "__main__":
   except tk.TclError:
     pass
   finally:
-    robust_exit_handler(None, None)  # Trigger the robust exit handler
+    #robust_exit_handler(None, None)  # Trigger the robust exit handler
+    pass  # Add an indented block of code here
