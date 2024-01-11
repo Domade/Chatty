@@ -237,7 +237,8 @@ def on_submit(state, text_entry):  # Accept state and text_entry as arguments
   try:
     user_input = text_entry.get()
     threading.Thread(
-        target=lambda: get_response_and_save(user_input, state),
+        target=lambda: get_response_and_save(user_input, state, text_entry
+                                             ),  # Pass text_entry as well
         # Pass state to the function call
         daemon=True).start()
   except Exception as e:
@@ -245,8 +246,11 @@ def on_submit(state, text_entry):  # Accept state and text_entry as arguments
     messagebox.showerror("Error", str(e))
 
 
-def get_response_and_save(user_input, state):
+def get_response_and_save(user_input, state, text_entry):
   sentiment, scores, _ = analyze_text(user_input, state)
+  response_results(
+      sentiment, scores,
+      [])  # Placeholder for word_type_scores - to log the sentiment scores
   learned_sentiment = check_learned_phrases(user_input, state)
   if learned_sentiment:
     sentiment = learned_sentiment
@@ -257,28 +261,26 @@ def get_response_and_save(user_input, state):
     # Save the response if sentiment is positive or negative
     is_positive = sentiment == "positive"
     learn_action(is_positive, user_input, state)
-
   # After analyzing and potentially saving sentiment, reflect any changes to the learned actions
   if state.action_buffer:
     state.save_learned_actions_to_file('learned_actions.json')
+  text_entry.delete(0, tk.END)  # Clear the text entry field
+  messagebox.showinfo("Response",
+                      f"Your sentiment is: {sentiment.capitalize()}"
+                      )  # Show the sentiment to the user
 
 
-def create_popup(state):  # Accept state as an argument
-  popup = tk.Toplevel()  # Use Toplevel instead of a new Tk instance
-  popup.title("Text Input")
-  text_entry = tk.Entry(popup, width=50)
-  text_entry.pack()
-  submit_button = tk.Button(popup,
-                            text="Submit",
-                            command=lambda: on_submit(state, text_entry))
-  # Pass state and text_entry
-  submit_button.pack()
+def create_popup(state, root):
+  # Make sure to use the existing Tk instance "root" when creating Toplevel window.
+  popup = tk.Toplevel(root)  # Use Toplevel with the "root" parent
 
 
+  # Continue with the rest of your popup setup...
 def main():
   root = tk.Tk()
+  root.title("Main Window")  # Set a title for the main window
   state = GlobalState()
-  create_popup(state)
+  create_popup(state, root)  # Pass the main Tk instance "root" as an argument
 
   try:
     state.load_words_from_file('words.json')
