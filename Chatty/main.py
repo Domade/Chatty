@@ -10,17 +10,25 @@ from tkinter import messagebox
 import threading
 import random
 
-
 # Initialize logging
 logging.basicConfig(filename='app.log',
-          level=logging.INFO,
-          format='%(asctime)s - %(message)s')
+                    level=logging.INFO,
+                    format='%(asctime)s - %(message)s')
+
+
 class GlobalState:
+
   def __init__(self):
     self.word_types = {
-      'nouns': [], 'verbs': [], 'descriptors': [], 'conjunctions': [],
-      'positive_words': [], 'negative_words': [], 'swear_words': [],
-      'greetings': [], 'farewells': []
+        'nouns': [],
+        'verbs': [],
+        'descriptors': [],
+        'conjunctions': [],
+        'positive_words': [],
+        'negative_words': [],
+        'swear_words': [],
+        'greetings': [],
+        'farewells': []
     }
     self.learned_actions = {'positive': [], 'negative': [], 'neutral': []}
     self.action_buffer = []
@@ -73,7 +81,8 @@ class GlobalState:
         self.learned_actions = json.load(file)
       logging.info("Learned actions loaded successfully.")
     except FileNotFoundError:
-      logging.info("No learned actions file found. Continuing with empty actions.")
+      logging.info(
+          "No learned actions file found. Continuing with empty actions.")
     except Exception as e:
       logging.error(f"Failed to load learned actions: {e}")
       raise
@@ -124,8 +133,10 @@ def get_word_type_scores(text, state):  # Accept state as an argument
 
 
 def analyze_text(text, state):  # Accept state as an argument
-  sentiment_result, sentiment_scores = get_sentiment(text, state)  # Pass state to the function call
-  word_type_scores = get_word_type_scores(text, state)  # Pass state to the function call
+  sentiment_result, sentiment_scores = get_sentiment(
+      text, state)  # Pass state to the function call
+  word_type_scores = get_word_type_scores(
+      text, state)  # Pass state to the function call
   return sentiment_result, sentiment_scores, word_type_scores
 
 
@@ -136,86 +147,99 @@ def learn_action(is_positive, user_text, state):
 
 
 def create_user_decide_popup(user_text, state):
+
   def close_popup():
-      popup.destroy()
+    popup.destroy()
+
   def handle_positive_sentiment():
-      learn_action("positive", user_text, state)  # Use "positive"
-      close_popup()
+    learn_action("positive", user_text, state)  # Use "positive"
+    close_popup()
+
   def handle_negative_sentiment():
-      learn_action("negative", user_text, state)  # Use "negative"
-      close_popup()
+    learn_action("negative", user_text, state)  # Use "negative"
+    close_popup()
+
   popup = tk.Toplevel()
   popup.title("Your Input is Needed")
   tk.Label(popup, text="We need your help with the sentiment.").pack()
-  tk.Button(popup, text="This is Positive", command=handle_positive_sentiment).pack()
-  tk.Button(popup, text="This is Negative", command=handle_negative_sentiment).pack()
+  tk.Button(popup, text="This is Positive",
+            command=handle_positive_sentiment).pack()
+  tk.Button(popup, text="This is Negative",
+            command=handle_negative_sentiment).pack()
   popup.grab_set()  # Make the popup modal
-  popup.wait_window() 
+  popup.wait_window()
+
 
 def check_learned_phrases(text, state):
-      learned_phrases = state.learned_actions
-      for sentiment, phrases in learned_phrases.items():
-          if text in phrases:
-              return sentiment
-      return None
+  learned_phrases = state.learned_actions
+  for sentiment, phrases in learned_phrases.items():
+    if text in phrases:
+      return sentiment
+  return None
 
 
 def get_response(text, state):
-      try:
-          sentiment_result, sentiment_scores, word_type_scores = analyze_text(
-              text, state)
-          learned_sentiment = check_learned_phrases(text, state)
-          if any(greeting in text.lower() for greeting in state.get_word_by_type('greetings')):
-              response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
-          elif any(farewell in text.lower() for farewell in state.get_word_by_type('farewells')):
-              response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
-          elif sentiment_result == "swear":
-              response = "I'm unable to respond to that."
-          else:
-              response = "How can I assist you?"
-          messagebox.showinfo("Response", response)
+  try:
+    sentiment_result, sentiment_scores, word_type_scores = analyze_text(
+        text, state)
+    learned_sentiment = check_learned_phrases(text, state)
+    if any(greeting in text.lower()
+           for greeting in state.get_word_by_type('greetings')):
+      response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
+    elif any(farewell in text.lower()
+             for farewell in state.get_word_by_type('farewells')):
+      response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
+    elif sentiment_result == "swear":
+      response = "I'm unable to respond to that."
+    else:
+      response = "How can I assist you?"
+    messagebox.showinfo("Response", response)
 
-          if learned_sentiment is not None and learned_sentiment != "positive":
-              answer = messagebox.askyesno("Clarification", "Was the sentiment of the phrase positive?")
-              if answer:
-                  learn_action(True, text, state)
-              else:
-                  learn_action(False, text, state)
-          elif learned_sentiment is None and sentiment_result in ["positive", "negative"]:
-              learn_action(sentiment_result == "positive", text, state)
-          return response
-      except Exception as e:
-          logging.error(f"An error occurred in get_response: {e}")
-      return "I'm sorry, but an error occurred while generating a response."
+    if learned_sentiment is not None and learned_sentiment != "positive":
+      answer = messagebox.askyesno(
+          "Clarification", "Was the sentiment of the phrase positive?")
+      if answer:
+        learn_action(True, text, state)
+      else:
+        learn_action(False, text, state)
+    elif learned_sentiment is None and sentiment_result in [
+        "positive", "negative"
+    ]:
+      learn_action(sentiment_result == "positive", text, state)
+    return response
+  except Exception as e:
+    logging.error(f"An error occurred in get_response: {e}")
+  return "I'm sorry, but an error occurred while generating a response."
+
 
 def response_results(sentiment_result, sentiment_scores, word_type_scores):
-    results = f"Sentiment: {sentiment_result}, " \
-          f"Sentiment Scores: {sentiment_scores}, " \
-          f"Word Type Scores: {word_type_scores}"
-    print(results)
+  results = f"Sentiment: {sentiment_result}, " \
+        f"Sentiment Scores: {sentiment_scores}, " \
+        f"Word Type Scores: {word_type_scores}"
+  print(results)
 
-    def create_sentiment_buttons(user_text, state):
-      learn_action(True, user_text, state)
+  def create_sentiment_buttons(user_text, state):
+    learn_action(True, user_text, state)
 
-    popup = tk.Tk()
-    popup.title("Sentiment Undetermined")
-    tk.Label(popup, text="Unable to determine sentiment.").pack()
-    tk.Button(popup,
-          text="Sentiment is Positive",
-          command=handle_positive_sentiment).pack()
-    tk.Button(popup, text="Sentiment is Negative",
-          command=close_popup).pack()
-    popup.mainloop()
+  popup = tk.Tk()
+  popup.title("Sentiment Undetermined")
+  tk.Label(popup, text="Unable to determine sentiment.").pack()
+  tk.Button(popup,
+            text="Sentiment is Positive",
+            command=handle_positive_sentiment).pack()
+  tk.Button(popup, text="Sentiment is Negative", command=close_popup).pack()
+  popup.mainloop()
 
-    popup.destroy()
+  popup.destroy()
 
 
 def on_submit(state, text_entry):  # Accept state and text_entry as arguments
   try:
     user_input = text_entry.get()
-    threading.Thread(target=lambda: get_response_and_save(user_input, state),
-             # Pass state to the function call
-             daemon=True).start()
+    threading.Thread(
+        target=lambda: get_response_and_save(user_input, state),
+        # Pass state to the function call
+        daemon=True).start()
   except Exception as e:
     logging.error(f"An error occurred in on_submit: {e}")
     messagebox.showerror("Error", str(e))
@@ -239,32 +263,30 @@ def get_response_and_save(user_input, state):
     state.save_learned_actions_to_file('learned_actions.json')
 
 
-
-
 def create_popup(state):  # Accept state as an argument
   popup = tk.Toplevel()  # Use Toplevel instead of a new Tk instance
   popup.title("Text Input")
   text_entry = tk.Entry(popup, width=50)
   text_entry.pack()
-  submit_button = tk.Button(popup, text="Submit", command=lambda: on_submit(state, text_entry))
+  submit_button = tk.Button(popup,
+                            text="Submit",
+                            command=lambda: on_submit(state, text_entry))
   # Pass state and text_entry
   submit_button.pack()
 
 
 def main():
-  # This function should initiate the main application window and loop
   root = tk.Tk()
-  # ...
-  # Setup the rest of your Tkinter widgets here before starting the mainloop
-
-  # Create a GlobalState instance and load data from files
   state = GlobalState()
   create_popup(state)
 
   try:
     state.load_words_from_file('words.json')
     state.load_learned_actions_from_file('learned_actions.json')
-
+  except Exception as e:
+    logging.error(f"An error occurred while loading state: {e}")
+    messagebox.showerror("Error", "Failed to load application state.")
+  finally:
     root.mainloop()
 
 
