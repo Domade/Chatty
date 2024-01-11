@@ -2,127 +2,94 @@
 # run python main.py
 # Import necessary libraries
 import sys
-import random
 import json
 import logging
 import os
 import tkinter as tk
 from tkinter import messagebox
-import signal
-import json
-import logging
-import random
 import threading
-import tkinter as tk
-from tkinter import messagebox
-import threading  # Import threading for background tasks
+
 
 # Initialize logging
 logging.basicConfig(filename='app.log',
                     level=logging.INFO,
                     format='%(asctime)s - %(message)s')
-
-
 class GlobalState:
-
   def __init__(self):
-    self.learned_actions = {"positive": [], "negative": []}
-    self.action_buffer = []
     self.word_types = {
-        'nouns': [],
-        'verbs': [],
-        'descriptors': [],
-        'conjunctions': [],
-        'positive_words': [],
-        'negative_words': [],
-        'swear_words': [],
-        'greetings': [],
-        'farewells': []
+        'nouns': [], 'verbs': [], 'descriptors': [], 'conjunctions': [],
+        'positive_words': [], 'negative_words': [], 'swear_words': [],
+        'greetings': [], 'farewells': []
     }
-    # Removed "pass" since it's unnecessary here
+    self.learned_actions = {'positive': [], 'negative': [], 'neutral': []}
+    self.action_buffer = []
 
   def add_word(self, word_type, word):
     if word_type in self.word_types and word not in self.word_types[word_type]:
       self.word_types[word_type].append(word)
       self.save_words_to_file('words.json')
-    # Assuming words.json is the file where words are stored
 
   def get_word_by_type(self, word_type):
+    return self.word_types.get(word_type, [])
 
-    class GlobalState:
+  def set_words_by_type(self, word_type, words):
+    if word_type in self.word_types:
+      self.word_types[word_type] = words
+      self.save_words_to_file('words.json')
 
-      def __init__(self):
-        self.word_types = {
-            'swear_words': [],
-            'positive_words': [],
-            'negative_words': []
-        }
-        self.learned_actions = {'positive': [], 'negative': [], 'neutral': []}
-        self.greetings = []
-        self.farewells = []
-        self.action_buffer = []
+  def update_learned_actions(self, sentiment, phrase):
+    if phrase not in self.learned_actions[sentiment]:
+      self.learned_actions[sentiment].append(phrase)
+      self.action_buffer.append((sentiment, phrase))
 
-      def get_word_by_type(self, word_type):
-        return self.word_types.get(word_type, [])
+  def save_state(self):
+    self.save_words_to_file('words.json')
+    self.save_learned_actions_to_file('learned_actions.json')
 
-      def set_words_by_type(self, word_type, words):
-        if word_type in self.word_types:
-          self.word_types[word_type] = words
-          self.save_words_to_file('words.json')
+  def load_words_from_file(self, file_path):
+    try:
+      with open(file_path, 'r') as file:
+        words_data = json.load(file)
+        for word_type in self.word_types:
+          self.word_types[word_type] = words_data.get(word_type, [])
+      logging.info("Words loaded successfully.")
+    except Exception as e:
+      logging.error(f"Failed to load words: {e}")
+      raise
 
-      def update_learned_actions(self, sentiment, phrase):
-        if phrase not in self.learned_actions[sentiment]:
-          self.learned_actions[sentiment].append(phrase)
-          self.action_buffer.append((sentiment, phrase))
+  def save_words_to_file(self, file_path):
+    try:
+      with open(file_path, 'w') as file:
+        json.dump(self.word_types, file, indent=2)
+      logging.info("Words saved successfully.")
+    except Exception as e:
+      logging.error(f"Failed to save words: {e}")
+      raise
 
-      def save_state(self):
-        # Save words and learned actions to files
-        pass
+  def load_learned_actions_from_file(self, file_path):
+    try:
+      with open(file_path, 'r') as file:
+        self.learned_actions = json.load(file)
+      logging.info("Learned actions loaded successfully.")
+    except FileNotFoundError:
+      logging.info("No learned actions file found. Continuing with empty actions.")
+    except Exception as e:
+      logging.error(f"Failed to load learned actions: {e}")
+      raise
 
-      def load_words_from_file(self, file_path):
-        try:
-          with open(file_path, 'r') as file:
-            words_data = json.load(file)
-            for word_type in self.word_types:
-              self.word_types[word_type] = words_data.get(word_type, [])
-          logging.info("Words loaded successfully.")
-        except Exception as e:
-          logging.error(f"Failed to load words: {e}")
-          raise
+  def save_learned_actions_to_file(self, file_path):
+    try:
+      with open(file_path, 'w') as file:
+        json.dump(self.learned_actions, file, indent=2)
+      self.action_buffer.clear()
+      logging.info("Learned actions saved successfully.")
+    except Exception as e:
+      logging.error(f"Failed to save learned actions: {e}")
+      raise
 
-      def save_words_to_file(self, file_path):
-        try:
-          with open(file_path, 'w') as file:
-            json.dump(self.word_types, file, indent=2)
-          logging.info("Words saved successfully.")
-        except Exception as e:
-          logging.error(f"Failed to save words: {e}")
-          raise
 
-      def load_learned_actions_from_file(self, file_path):
-        try:
-          with open(file_path, 'r') as file:
-            self.learned_actions = json.load(file)
-          logging.info("Learned actions loaded successfully.")
-        except FileNotFoundError:
-          logging.info(
-              "No learned actions file found. Continuing with empty actions.")
-        except Exception as e:
-          logging.error(f"Failed to load learned actions: {e}")
-          raise
 
-      def save_learned_actions_to_file(self, file_path):
-        try:
-          with open(file_path, 'w') as file:
-            json.dump(self.learned_actions, file, indent=2)
-          self.action_buffer.clear()  # Clear the action buffer after saving
-          logging.info("Learned actions saved successfully.")
-        except Exception as e:
-          logging.error(f"Failed to save learned actions: {e}")
-          raise
-
-    def get_sentiment(text):
-      state = GlobalState()  # Use state instance instead of global variables
+def get_sentiment(text, state):  # Accept state as an argument
       score = 0
       contains_swear = False
       for word in text.lower().split():
@@ -145,8 +112,7 @@ class GlobalState:
         else:
           return "neutral", [0]
 
-    def get_word_type_scores(text):
-      state = GlobalState()  # Use state instance instead of global variables
+def get_word_type_scores(text, state):  # Accept state as an argument
       word_types = state.word_types
       words = text.lower().split()
       scores = []
@@ -155,58 +121,26 @@ class GlobalState:
         scores.append(0)
       return scores  # Correctly dedented to align with the for loop
 
-    def analyze_text(text):
-      sentiment_result, sentiment_scores = get_sentiment(text)
-      word_type_scores = get_word_type_scores(text)
-      return sentiment_result, sentiment_scores, word_type_scores
+def analyze_text(text, state):  # Accept state as an argument
+  sentiment_result, sentiment_scores = get_sentiment(text, state)  # Pass state to the function call
+  word_type_scores = get_word_type_scores(text, state)  # Pass state to the function call
+  return sentiment_result, sentiment_scores, word_type_scores
 
-    def learn_action(is_positive, phrase):
-      state = GlobalState()  # Use state instance instead of global variables
-      category = "positive" if is_positive else "negative"
-      state.update_learned_actions(category, phrase)
-      state.save_learned_actions_to_file('learned_actions.json')
 
-    def create_user_decide_popup(user_text):
+def learn_action(is_positive, user_text, state):
+  category = "positive" if is_positive else "negative"
+  state.update_learned_actions(category, user_text)
+  state.save_learned_actions_to_file('learned_actions.json')
 
-      def close_popup():
-        popup.destroy()
+def create_user_decide_popup(user_text, state):
+  def close_popup():
+      popup.destroy()
+  def handle_positive_sentiment():
+      learn_action(True, user_text, state)  # Pass state to the function call
+      close_popup()
 
-      def handle_positive_sentiment():
-        learn_action(True, user_text)
-        close_popup()
+    def check_learned_phrases(text, state):
 
-      def ai_decide_sentiment():
-        state = GlobalState()  # Use state instance instead of global variables
-        sentiment_result = get_sentiment(user_text)[0]
-        if sentiment_result != "negative":
-          # Before creating sentiment buttons, close the current pop-up
-          close_popup()
-          create_sentiment_buttons(user_text)
-        else:
-          messagebox.showinfo(
-              "Sentiment Decision",
-              "The sentiment is negative and will not be saved.")
-          # Ensuring we close the pop-up even when sentiment is negative
-          close_popup()
-
-      # Here we define the pop-up using top-level instead of creating a new Tk root
-      popup = tk.Toplevel()
-      popup.title("Your Input is Needed")
-
-      tk.Label(popup, text="We need your help with the sentiment.").pack()
-      tk.Button(popup,
-                text="This is Positive",
-                command=handle_positive_sentiment).pack()
-      tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
-
-      close_button = tk.Button(popup, text="Close", command=close_popup)
-      close_button.pack()
-
-      popup.grab_set()  # this will direct all events to the pop-up
-      popup.focus_set()  # this will focus on the pop-up
-
-    def check_learned_phrases(text):
-      state = GlobalState()  # Use state instance instead of global variables
       learned_phrases = state.learned_actions  # use the in-memory data
 
       for sentiment, phrases in learned_phrases.items():
@@ -214,17 +148,16 @@ class GlobalState:
           return sentiment
       return None
 
-    def get_response(text):
-      state = GlobalState()  # Use state instance instead of global variables
+    def get_response(text, state):
+    
       try:
         sentiment_result, sentiment_scores, word_type_scores = analyze_text(
-            text)
-        learned_sentiment = check_learned_phrases(text)
-        # Check for greetings and farewells first
-        if any(greeting in text.lower() for greeting in state.greetings):
-          response = f"{random.choice(state.greetings).capitalize()}! How can I help you today?"
-        elif any(farewell in text.lower() for farewell in state.farewells):
-          response = f"{random.choice(state.farewells).capitalize()}! Have a great day!"
+            text, state)
+        learned_sentiment = check_learned_phrases(text, state)
+        if any(greeting in text.lower() for greeting in state.get_word_by_type('greetings')):
+          response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
+        elif any(farewell in text.lower() for farewell in state.get_word_by_type('farewells')):
+          response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
         # Handle swear words specifically
         elif sentiment_result == "swear":
           response = "I'm unable to respond to that."
@@ -238,16 +171,10 @@ class GlobalState:
               "Clarification",
               "Do you need to clarify the sentiment of the phrase?")
           if answer:
-            create_user_decide_popup(text)
+              create_user_decide_popup(text, state)
           else:
-            if sentiment_result == "negative":
-              learn_action(False, text)
-            elif sentiment_result == "positive":
-              learn_action(True, text)
-            if sentiment_result != "neutral":
-              learn_action(sentiment_result == "positive", text)
-              response_results(sentiment_result, sentiment_scores,
-                               word_type_scores)
+              if sentiment_result in ["positive", "negative"]:
+                  learn_action(sentiment_result == "positive", text, state)
         return response
       except Exception as e:
         logging.error(f"An error occurred in get_response: {e}")
@@ -264,8 +191,8 @@ class GlobalState:
       def close_popup():
         popup.destroy()
 
-      def handle_positive_sentiment():
-        learn_action(True, user_text)
+      def create_sentiment_buttons(user_text, state):
+        learn_action(True, user_text, state)
 
       popup = tk.Tk()
       popup.title("Sentiment Undetermined")
@@ -279,74 +206,53 @@ class GlobalState:
 
       popup.destroy()
 
-    def on_submit():
-      state = GlobalState()  # Use state instance instead of global variables
-      try:
-        user_input = text_entry.get()
-        # No need to declare text_entry as global if it's not used outside this scope
-        threading.Thread(target=lambda: get_response_and_save(user_input),
-                         daemon=True).start()
-      except Exception as e:
-        logging.error(f"An error occurred in on_submit: {e}")
-        messagebox.showerror("Error", str(e))
+def on_submit(state, text_entry):  # Accept state and text_entry as arguments
+  try:
+      user_input = text_entry.get()
+      threading.Thread(target=lambda: get_response_and_save(user_input, state),  
+                       # Pass state to the function call
+                       daemon=True).start()
+  except Exception as e:
+      logging.error(f"An error occurred in on_submit: {e}")
+      messagebox.showerror("Error", str(e))
 
-    def get_response_and_save(user_input):
-      response = get_response(
-          user_input)  # get the response based on user input
+    def get_response_and_save(user_input, state):
+      # Accept state as an argument
+      response = get_response(user_input, state)  # Pass state to the function call
       messagebox.showinfo("Response", response)
-      state = GlobalState(
-      )  # Replace the incorrect function call with the GlobalState method
+      
       state.save_learned_actions_to_file(
           'learned_actions.json')  # save any updated learned actions
 
-    def create_popup():
-      root = tk.Tk()
-      root.title("Text Input")
-      text_entry = tk.Entry(root, width=50)
-      text_entry.pack()
-      submit_button = tk.Button(root, text="Submit", command=on_submit)
-      submit_button.pack()
-      root.mainloop()
+def create_popup(state):  # Accept state as an argument
+  popup = tk.Toplevel()  # Use Toplevel instead of a new Tk instance
+  popup.title("Text Input")
+  text_entry = tk.Entry(popup, width=50)
+  text_entry.pack()
+  submit_button = tk.Button(popup, text="Submit", command=lambda: on_submit(state, text_entry))
+  # Pass state and text_entry
+  submit_button.pack()
 
-    def on_program_exit():
-      try:
-        state = GlobalState()  # ... existing code to save the state
-        pass
-      except Exception as e:
-        logging.error(f"Failed to save all data on exit: {e}")
-      finally:
-        if 'root' in globals():
-          root.destroy()  # Check if 'root' is defined before destroying it
-        print("Program exiting...")  # Main Execution Corrections
 
-# ... [Rest of your code before the main function] ...
 
 def main():
-    # This function should initiate the main application window and loop
-    global root
-    root = tk.Tk()
-    root.title("Main Window")
-    # ...
-    # Setup the rest of your Tkinter widgets here before starting the mainloop
+  # This function should initiate the main application window and loop
+  root = tk.Tk()
+  # ...
+  # Setup the rest of your Tkinter widgets here before starting the mainloop
 
-    # Create a GlobalState instance and load data from files
-    state = GlobalState()
-    try:
-        state.load_words_from_file('words.json')
-        state.load_learned_actions_from_file('learned_actions.json')
-    except Exception as e:
-        logging.error(f"Failed to load state: {e}")
-        messagebox.showerror("Error", str(e))
+  # Create a GlobalState instance and load data from files
+  state = GlobalState()
+  create_popup(state)
+  
+  try:
+      state.load_words_from_file('words.json')
+      state.load_learned_actions_from_file('learned_actions.json')
+  
+      root.mainloop()
 
-    # After setting up the UI, start the Tkinter event loop
-    try:
-        root.mainloop()
-    except Exception as e:
-        logging.error(f"An uncaught error occurred: {e}")
-        messagebox.showerror("Uncaught Error", str(e))
-        root.destroy()
+
 
 # Place the if __name__ == "__main__": block at the bottom, correctly indented
 if __name__ == "__main__":
-    main()  # This will start your main application
-
+  main()  # This will start your main application
