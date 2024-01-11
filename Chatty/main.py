@@ -413,6 +413,7 @@ def create_popup():
 def on_program_exit():
   try:
       # ... existing on_program_exit code ...
+    pass
   except Exception as e:
       logging.error(f"Failed to save all data on exit: {e}")
   finally:
