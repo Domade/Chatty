@@ -300,6 +300,7 @@ def get_response_and_save(user_input):
     def on_program_exit():
       try:
         # ... existing code to save the state
+         pass
       except Exception as e:
         logging.error(f"Failed to save all data on exit: {e}")
       finally:
@@ -308,13 +309,15 @@ def get_response_and_save(user_input):
         print("Program exiting...")# Main Execution Corrections
 
 if __name__ == "__main__":
+    state = GlobalState()
     try:
-        # Your existing code
+        # Your existing code to load state and create a popup goes here
+        # Example placeholder for demonstration:
         pass
     except Exception as e:
         messagebox.showerror("Error", str(e))
     else:
-        # The protocol settings are to be outside of the try-except block
-        if 'root' in globals():
-            root.protocol("WM_DELETE_WINDOW", on_program_exit)
-
+        # Your additional code goes here, if applicable
+        pass
+    if 'root' in globals():
+        root.protocol("WM_DELETE_WINDOW", on_program_exit)
