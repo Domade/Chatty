@@ -330,40 +330,36 @@ def get_response(text):
     sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
     learned_sentiment = check_learned_phrases(text)
 
-    # If there's a learned sentiment, it takes precedence, unless it's neutral
-    if learned_sentiment and learned_sentiment != "neutral":
-      response = f"Learned response with a {learned_sentiment} sentiment."
-      messagebox.showinfo("Learned Sentiment", response)
-      return response
-
-    # Check for greetings and farewells before analyzing sentiment
+    # Check for greetings and farewells first
     if any(greeting in text.lower() for greeting in greetings):
-      return f"{random.choice(greetings).capitalize()}! How can I help you today?"
-    if any(farewell in text.lower() for farewell in farewells):
-      return f"{random.choice(farewells).capitalize()}! Have a great day!"
-
+      response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
+    elif any(farewell in text.lower() for farewell in farewells):
+      response = f"{random.choice(farewells).capitalize()}! Have a great day!"
     # Handle swear words specifically
-    if sentiment_result == "swear":
-      return "I'm unable to respond to that."
+    elif sentiment_result == "swear":
+      response = "I'm unable to respond to that."
+    else:
+      # Provide a generic response for all other cases
+      response = "How can I assist you?"
 
-    # If sentiment is neutral, ask the user to decide (skip if learned_sentiment is positive)
-    if sentiment_result == "neutral" and learned_sentiment != "positive":
-      create_user_decide_popup(text)
-      return "Please decide on the sentiment of the phrase."
+    messagebox.showinfo("Response", response)
 
-    # In all other cases, give a generic response and learn action if necessary
-    response = "How can I assist you?"
-    if sentiment_result == "negative":
-      learn_action(False, text)
-    elif sentiment_result == "positive":
-      learn_action(True, text)
-
-    # Save the learned phrase unless it's a neutral sentiment
-    if sentiment_result != "neutral":
-      save_learned_phrase(text, sentiment_result)
+    # Ask the user if they need to clarify the sentiment
+    if learned_sentiment != "positive":
+      answer = messagebox.askyesno(
+          "Clarification",
+          "Do you need to clarify the sentiment of the phrase?")
+      if answer:
+        create_user_decide_popup(text)
+      else:
+        if sentiment_result == "negative":
+          learn_action(False, text)
+        elif sentiment_result == "positive":
+          learn_action(True, text)
+        if sentiment_result != "neutral":
+          save_learned_phrase(text, sentiment_result)
 
     response_results(sentiment_result, sentiment_scores, word_type_scores)
-
     return response
 
   except Exception as e:
