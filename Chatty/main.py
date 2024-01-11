@@ -237,10 +237,17 @@ def create_sentiment_buttons(user_text, state):
 def on_submit(state, text_entry):  # Accept state and text_entry as arguments
   try:
     user_input = text_entry.get()
-    # Start a separate thread to handle analysis, learning, and response retrieval
-    threading.Thread(
-        target=lambda: get_response_and_save(user_input, state, text_entry),
-        daemon=True).start()
+
+    # Get response in a thread to avoid freezing the GUI
+    def thread_target():
+      try:
+        response = get_response(user_input, state)
+        messagebox.showinfo("Response", response)
+      except Exception as e:
+        logging.error(f"An error occurred in the response thread: {e}")
+        messagebox.showerror("Error", str(e))
+
+    threading.Thread(target=thread_target, daemon=True).start()
   except Exception as e:
     logging.error(f"An error occurred in on_submit: {e}")
     messagebox.showerror("Error", str(e))
