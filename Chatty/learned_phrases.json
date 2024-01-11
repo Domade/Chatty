@@ -1,9 +1,19 @@
 {
-  "positive": [],
+  "positive": [
+    "heelo",
+    "it is nice outside today",
+    "hello",
+    "its a great day outside"
+  ],
   "neutral": [
     "hello",
     "time to work ready?",
     "tell me a joke",
-    "the  white fox jumped over the lazy dog."
+    "the  white fox jumped over the lazy dog.",
+    "brown rat ran in the house",
+    "time to work are you ready",
+    "heelo",
+    "it is nice outside today",
+    "its a great day outside"
   ]
 }
