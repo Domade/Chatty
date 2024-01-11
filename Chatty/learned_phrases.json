@@ -3,7 +3,8 @@
     "heelo",
     "it is nice outside today",
     "hello",
-    "its a great day outside"
+    "its a great day outside",
+    "want to get some eyes?"
   ],
   "neutral": [
     "hello",
@@ -14,6 +15,7 @@
     "time to work are you ready",
     "heelo",
     "it is nice outside today",
-    "its a great day outside"
+    "its a great day outside",
+    "want to get some eyes?"
   ]
 }
