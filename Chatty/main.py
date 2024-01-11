@@ -262,6 +262,8 @@ def save_sentiment_words(sentiment_words, sentiment):
 # Modify the create_user_decide_popup function accordingly
 def create_user_decide_popup(user_text):
 
+  popup = None  # Define the popup variable
+
   def close_popup():
     popup.destroy()
 
@@ -320,7 +322,7 @@ def check_learned_phrases(text):
     return None
 
 
-# Previous sections of the code remain the same up to this point ...
+# Modify get_response function in the main.py file
 
 
 def get_response(text):
@@ -329,7 +331,7 @@ def get_response(text):
     learned_sentiment = check_learned_phrases(text)
 
     # If there's a learned sentiment, it takes precedence, unless it's neutral
-    if learned_sentiment in ("positive", "negative"):
+    if learned_sentiment and learned_sentiment != "neutral":
       response = f"Learned response with a {learned_sentiment} sentiment."
       messagebox.showinfo("Learned Sentiment", response)
       return response
@@ -344,8 +346,8 @@ def get_response(text):
     if sentiment_result == "swear":
       return "I'm unable to respond to that."
 
-    # If sentiment is neutral and not learned, ask the user to decide
-    if sentiment_result == "neutral" and not learned_sentiment:
+    # If sentiment is neutral, ask the user to decide (skip if learned_sentiment is positive)
+    if sentiment_result == "neutral" and learned_sentiment != "positive":
       create_user_decide_popup(text)
       return "Please decide on the sentiment of the phrase."
 
