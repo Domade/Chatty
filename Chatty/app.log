@@ -107,3 +107,17 @@
 2024-01-11 15:07:36,431 - Learned sentiment: None
 2024-01-11 15:07:36,431 - Response: How can I assist you?
 2024-01-11 15:07:36,431 - Final response: How can I assist you?
+2024-01-11 15:15:45,757 - Words loaded successfully.
+2024-01-11 15:15:45,758 - Learned actions loaded successfully.
+2024-01-11 15:15:57,043 - Processing input text: She loved the sound of raindrops
+2024-01-11 15:15:57,043 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0, 0, 0, 0]
+2024-01-11 15:15:57,043 - Learned sentiment: None
+2024-01-11 15:15:57,043 - Final response: How can I assist you?
+2024-01-11 15:15:59,850 - Processing input text: She loved the sound of raindrops
+2024-01-11 15:15:59,850 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0, 0, 0, 0]
+2024-01-11 15:15:59,850 - Learned sentiment: None
+2024-01-11 15:15:59,850 - Final response: How can I assist you?
+2024-01-11 15:16:02,471 - Processing input text: She loved the sound of raindrops
+2024-01-11 15:16:02,471 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0, 0, 0, 0]
+2024-01-11 15:16:02,471 - Learned sentiment: None
+2024-01-11 15:16:02,471 - Final response: How can I assist you?
