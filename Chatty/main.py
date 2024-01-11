@@ -323,49 +323,46 @@ def check_learned_phrases(text):
 # Previous sections of the code remain the same up to this point ...
 
 
-# Modified get_response function to print sentiment to the console
+# Modified get_response function to correctly handle neutral sentiment
 def get_response(text):
   try:
     sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
     learned_sentiment = check_learned_phrases(text)
-    informed_user_of_learned = False
 
-    # Response based on learned sentiment
-    if learned_sentiment:
+    # Prioritize learned sentiment but prompt user if it's neutral and learned
+    if learned_sentiment == "neutral":
+      create_user_decide_popup(text)
+      return
+    elif learned_sentiment in ("positive", "negative"):
       response = f"Learned response with a {learned_sentiment} sentiment."
       messagebox.showinfo("Learned Sentiment", response)
-      informed_user_of_learned = True
+      return response
 
-    # If the sentiment is neutral and we haven't learned it before, prompt the user
-    elif sentiment_result == "neutral" and not learned_sentiment:
+    # If the sentiment is neutral and not learned, prompt the user
+    if sentiment_result == "neutral":
       create_user_decide_popup(text)
-      return  # Early return since the popup will handle further interactions
+      return
 
-    # Handle swear words separately
+    # Handle specific cases such as swear words, greetings, farewells
     elif sentiment_result == "swear":
       response = "I'm unable to respond to that."
-
-    # Handle greetings
     elif any(greeting in text.lower() for greeting in greetings):
       response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
-
-    # Handle farewells
     elif any(farewell in text.lower() for farewell in farewells):
       response = f"{random.choice(farewells).capitalize()}! Have a great day!"
-
-    # Provide a generic response
     else:
+      # General case
       response = "How can I assist you?"
 
-    # If sentiment is detected and not learned, learn and respond
-    if not informed_user_of_learned:
-      if sentiment_result == "negative":
-        learn_action(False, text)
-      elif sentiment_result == "positive":
-        learn_action(True, text)
+    # Learn and respond if sentiment is either positive or negative
+    if sentiment_result == "negative":
+      learn_action(False, text)
+    elif sentiment_result == "positive":
+      learn_action(True, text)
 
-      save_learned_phrase(text, sentiment_result)
-      response_results(sentiment_result, sentiment_scores, word_type_scores)
+    # Save the learned phrase regardless of sentiment
+    save_learned_phrase(text, sentiment_result)
+    response_results(sentiment_result, sentiment_scores, word_type_scores)
 
   except Exception as e:
     logging.error(f"An error occurred in get_response: {e}")
