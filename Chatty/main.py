@@ -23,14 +23,17 @@ def load_words():
   try:
     with open('words.json', 'r') as f:
       loaded_words = json.load(f)
-      # Include the positive and negative words lists in the return statement
-      return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
-              loaded_words.get('descriptors',
-                               []), loaded_words.get('conjunctions', []),
-              loaded_words.get('positive_words',
-                               []), loaded_words.get('negative_words', []))
+      return (
+          loaded_words.get('nouns', []),
+          loaded_words.get('verbs', []),
+          loaded_words.get('descriptors', []),
+          loaded_words.get('conjunctions', []),
+          loaded_words.get('positive_words', []),
+          loaded_words.get('negative_words', []),
+          loaded_words.get('swear_words', [])  # Initialize swear_words list
+      )
   except FileNotFoundError:
-    return [], [], [], [], [], [
+    return [], [], [], [], [], [], [
     ]  # Return empty lists if the file doesn't exist
 
 
