@@ -289,24 +289,21 @@ def check_learned_phrases(text):
 def get_response(text):
   sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
 
-
   # Check if the phrase has been learned previously
   learned_sentiment = check_learned_phrases(text)
   learned_response = None
   if learned_sentiment:
     logging.info(
-      f"Learned phrase detected: '{text}' with a {learned_sentiment} sentiment."
-  )
+        f"Learned phrase detected: '{text}' with a {learned_sentiment} sentiment."
+    )
   learned_response = f"Learned response with a {learned_sentiment} sentiment."
 
   informed_user_of_learned = False
 
-
-
   if sentiment_result == "neutral" and not learned_sentiment:
     create_user_decide_popup(text)
   if learned_sentiment:
-   messagebox.showinfo("Learned Sentiment", learned_response)
+    messagebox.showinfo("Learned Sentiment", learned_response)
   informed_user_of_learned = True
 
   if sentiment_result == "swear":
@@ -318,11 +315,13 @@ def get_response(text):
   else:
     response = "How can I assist you?"
 
-  if sentiment_result == "positive":
-    learn_action(True, text)
-  elif sentiment_result == "negative":
+  if sentiment_result == "negative":
     suggested_action = "This is a negative response action."
-  learn_action(False, suggested_action)
+    learn_action(False, suggested_action)
+    save_learned_phrase(text, sentiment_result)
+  elif sentiment_result == "positive":
+    learn_action(True, text)
+    save_learned_phrase(text, sentiment_result)
 
   if sentiment_result != "negative":
     save_learned_phrase(text, sentiment_result)
