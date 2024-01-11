@@ -4,7 +4,11 @@
     "it is nice outside today",
     "hello",
     "its a great day outside",
-    "want to get some eyes?"
+    "want to get some eyes?",
+    "its going to snow tonight im sad",
+    "how are you today?",
+    "just testing anything new?",
+    "i love snow!"
   ],
   "neutral": [
     "hello",
@@ -16,6 +20,10 @@
     "heelo",
     "it is nice outside today",
     "its a great day outside",
-    "want to get some eyes?"
+    "want to get some eyes?",
+    "its going to snow tonight im sad",
+    "how are you today?",
+    "just testing anything new?",
+    "i love snow!"
   ]
 }
