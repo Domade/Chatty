@@ -15,11 +15,14 @@ logging.basicConfig(filename='app.log',
                     level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
+
 def robust_exit_handler(signum, frame):
   save_learned_actions_from_buffer()  # Save buffer to file before exiting
   save_words()  # Save word lists when program is exiting
   logging.info("Program exited gracefully.")
   sys.exit(0)
+
+
 # Register the robust exit handler for various exit signals
 for s in [signal.SIGINT, signal.SIGTERM, signal.SIGABRT]:
   signal.signal(s, robust_exit_handler)
@@ -30,27 +33,29 @@ def load_words():
   try:
     with open('words.json', 'r') as f:
       loaded_words = json.load(f)
-      return (
+      general_words = (
           loaded_words.get('nouns', []),
           loaded_words.get('verbs', []),
           loaded_words.get('descriptors', []),
           loaded_words.get('conjunctions', []),
+      )
+      sentiment_words = (
           loaded_words.get('positive_words', []),
           loaded_words.get('negative_words', []),
           loaded_words.get('swear_words', []),  # Initialize swear_words list
           loaded_words.get('greetings', []),
           loaded_words.get('farewells', []))
+      return general_words, sentiment_words
   except Exception as e:
     logging.error(f"Failed to load words: {e}")
   messagebox.showerror("Error", "Failed to load words from file.")
-  return [], [], [], [], [], [], [], [], []
-  # Return empty lists if the file doesn't exist
+  return ((), ())
 
 
 # Now that the function is defined, call load_words to initialize your word lists
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words, 
-greetings, farewells = load_words(
-)
+general_words, sentiment_words = load_words()
+nouns, verbs, descriptors, conjunctions = general_words
+positive_words, negative_words, swear_words, greetings, farewells = sentiment_words
 
 # Initialize a global dictionary to store learned actions
 learned_actions = {"positive": [], "negative": []}
@@ -173,7 +178,7 @@ def save_learned_actions_from_buffer():
   try:
     if os.path.exists('learned_actions.json'):
       with open('learned_actions.json', 'r') as file:
-       learned_actions = json.load(file)
+        learned_actions = json.load(file)
     else:
       learned_actions = {"positive": [], "negative": []}
   # Update learned actions with contents of the buffer
@@ -303,61 +308,63 @@ def check_learned_phrases(text):
 
 # Previous sections of the code remain the same up to this point ...
 
+
 # Modified get_response function to print sentiment to the console
 def get_response(text):
-    try:
-        sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
+  try:
+    sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
 
-        # Check if the phrase has been learned previously
-        learned_sentiment = check_learned_phrases(text)
-        learned_response = None
-        if learned_sentiment:
-            logging.info(
-                f"Learned phrase detected: '{text}' with a {learned_sentiment} sentiment.")
-            learned_response = f"Learned response with a {learned_sentiment} sentiment."
+    # Check if the phrase has been learned previously
+    learned_sentiment = check_learned_phrases(text)
+    learned_response = None
+    if learned_sentiment:
+      logging.info(
+          f"Learned phrase detected: '{text}' with a {learned_sentiment} sentiment."
+      )
+      learned_response = f"Learned response with a {learned_sentiment} sentiment."
 
-        informed_user_of_learned = False
+    informed_user_of_learned = False
 
-        if sentiment_result == "neutral" and not learned_sentiment:
-            create_user_decide_popup(text)
-        if learned_sentiment:
-            messagebox.showinfo("Learned Sentiment", learned_response)
-            informed_user_of_learned = True
+    if sentiment_result == "neutral" and not learned_sentiment:
+      create_user_decide_popup(text)
+    if learned_sentiment:
+      messagebox.showinfo("Learned Sentiment", learned_response)
+      informed_user_of_learned = True
 
-        if sentiment_result == "swear":
-            response = "I'm unable to respond to that."
-        elif any(greeting in text.lower() for greeting in greetings):
-            response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
-        elif any(farewell in text.lower() for farewell in farewells):
-            response = f"{random.choice(farewells).capitalize()}! Have a great day!"
-        else:
-            response = "How can I assist you?"
+    if sentiment_result == "swear":
+      response = "I'm unable to respond to that."
+    elif any(greeting in text.lower() for greeting in greetings):
+      response = f"{random.choice(greetings).capitalize()}! How can I help you today?"
+    elif any(farewell in text.lower() for farewell in farewells):
+      response = f"{random.choice(farewells).capitalize()}! Have a great day!"
+    else:
+      response = "How can I assist you?"
 
-        if sentiment_result == "negative":
-            suggested_action = "This is a negative response action."
-            learn_action(False, suggested_action)
-            save_learned_phrase(text, sentiment_result)
-        elif sentiment_result == "positive":
-            learn_action(True, text)
-            save_learned_phrase(text, sentiment_result)
+    if sentiment_result == "negative":
+      suggested_action = "This is a negative response action."
+      learn_action(False, suggested_action)
+      save_learned_phrase(text, sentiment_result)
+    elif sentiment_result == "positive":
+      learn_action(True, text)
+      save_learned_phrase(text, sentiment_result)
 
-        if sentiment_result != "negative":
-            save_learned_phrase(text, sentiment_result)
+    if sentiment_result != "negative":
+      save_learned_phrase(text, sentiment_result)
 
-        response_results(sentiment_result, sentiment_scores, word_type_scores)
-    except Exception as e:
-        logging.error(f"An error occurred in get_response: {e}")
-        return "I'm sorry, but an error occurred while generating a response."
+    response_results(sentiment_result, sentiment_scores, word_type_scores)
+  except Exception as e:
+    logging.error(f"An error occurred in get_response: {e}")
+    return "I'm sorry, but an error occurred while generating a response."
 
-    return response
+  return response
 
 
 # Function to print the results of the sentiment analysis
 def response_results(sentiment_result, sentiment_scores, word_type_scores):
-    results = f"Sentiment: {sentiment_result}, " \
-              f"Sentiment Scores: {sentiment_scores}, " \
-              f"Word Type Scores: {word_type_scores}"
-    print(results)
+  results = f"Sentiment: {sentiment_result}, " \
+            f"Sentiment Scores: {sentiment_scores}, " \
+            f"Word Type Scores: {word_type_scores}"
+  print(results)
 
 
 # Create TKinter popup to handle undetermined sentiment
@@ -384,15 +391,15 @@ def create_sentiment_buttons(user_text):
 def on_submit():
   global root
   try:
-      user_input = text_entry.get()
-      response = get_response(user_input)
-      messagebox.showinfo("Response", response)
-      save_learned_actions_from_buffer()  # Save buffered actions
+    user_input = text_entry.get()
+    response = get_response(user_input)
+    messagebox.showinfo("Response", response)
+    save_learned_actions_from_buffer()  # Save buffered actions
   except Exception as e:
-      logging.error(f"An error occurred in on_submit: {e}")
-      messagebox.showerror("Error", str(e))
+    logging.error(f"An error occurred in on_submit: {e}")
+    messagebox.showerror("Error", str(e))
   finally:
-      root.quit()  # Ensure the main Tkinter loop is terminated
+    root.quit()  # Ensure the main Tkinter loop is terminated
 
 
 # TKinter popup creation
@@ -412,19 +419,19 @@ def create_popup():
 # At the end of your script, add the definition for on_program_exit
 def on_program_exit():
   try:
-      # ... existing on_program_exit code ...
+    # ... existing on_program_exit code ...
     pass
   except Exception as e:
-      logging.error(f"Failed to save all data on exit: {e}")
+    logging.error(f"Failed to save all data on exit: {e}")
   finally:
-      print("Program exiting...")
+    print("Program exiting...")
 
 
 # Main entry point
 if __name__ == "__main__":
-    try:
-        create_popup()
-    except tk.TclError:
-        pass
-    finally:
-        robust_exit_handler(None, None)  # Trigger the robust exit handler
+  try:
+    create_popup()
+  except tk.TclError:
+    pass
+  finally:
+    robust_exit_handler(None, None)  # Trigger the robust exit handler
