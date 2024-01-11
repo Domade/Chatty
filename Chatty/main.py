@@ -60,6 +60,10 @@ def save_learned_phrase(phrase, sentiment):
     with open(file_path, 'r') as file:
       phrases_data = json.load(file)
 
+  # Check if the phrase has already been learned
+  if sentiment in phrases_data and phrase in phrases_data[sentiment]:
+    return  # Phrase already learned, do nothing
+
   # Append new phrase to the appropriate sentiment list
   if sentiment not in phrases_data:
     phrases_data[sentiment] = [phrase]
