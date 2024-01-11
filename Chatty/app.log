@@ -76,3 +76,15 @@
 2024-01-11 14:24:04,565 - Learned actions loaded successfully.
 2024-01-11 14:26:10,790 - Words loaded successfully.
 2024-01-11 14:26:10,790 - Learned actions loaded successfully.
+2024-01-11 14:29:56,852 - Words loaded successfully.
+2024-01-11 14:29:56,852 - Learned actions loaded successfully.
+2024-01-11 14:30:02,165 - Processing input text: hello
+2024-01-11 14:30:02,165 - Sentiment result: neutral
+2024-01-11 14:30:02,165 - Learned sentiment: positive
+2024-01-11 14:30:02,165 - Response: How can I assist you?
+2024-01-11 14:30:02,165 - Final response: How can I assist you?
+2024-01-11 14:30:14,968 - Processing input text: jiberjabber
+2024-01-11 14:30:14,968 - Sentiment result: neutral
+2024-01-11 14:30:14,968 - Learned sentiment: None
+2024-01-11 14:30:14,968 - Response: How can I assist you?
+2024-01-11 14:30:14,968 - Final response: How can I assist you?
