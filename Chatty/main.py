@@ -293,10 +293,10 @@ def check_learned_phrases(text):
 def get_response(text):
   sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
 
-  # Inside get_response function
   learned_sentiment = check_learned_phrases(text)
   if learned_sentiment:
-    # Return a response based on the learned sentiment
+    # Log the learned response to the console and return it
+    print(f"Learned response with a {learned_sentiment} sentiment: {text}")
     return f"Learned response with a {learned_sentiment} sentiment."
 
   if sentiment_result == "swear":
@@ -326,7 +326,7 @@ def get_response(text):
     save_learned_phrase(text, sentiment_result)
 
   if sentiment_result == "neutral":
-    create_user_decide_popup(text)
+    print("The sentiment is neutral and requires user decision.")
 
   # Call response_results here to print the sentiment and word type scores
   response_results(sentiment_result, sentiment_scores, word_type_scores)
