@@ -234,20 +234,16 @@ def create_sentiment_buttons(user_text, state):
 
   popup.destroy()
 
-
-def on_submit(state, text_entry):  # Accept state and text_entry as arguments
-  try:
-    user_input = text_entry.get()
-    # Get the automated response first and display it
-    automated_response = get_response(user_input, state)
-    messagebox.showinfo("Response", automated_response)
-    # Continue with analyzing, saving sentiment, and showing sentiment message in a separate thread
-    threading.Thread(
-        target=lambda: get_response_and_save(user_input, state, text_entry),
-        daemon=True).start()
-  except Exception as e:
-    logging.error(f"An error occurred in on_submit: {e}")
-    messagebox.showerror("Error", str(e))
+  def on_submit(state, text_entry):  # Accept state and text_entry as arguments
+    try:
+      user_input = text_entry.get()
+      # Start a separate thread to handle analysis, learning, and response retrieval
+      threading.Thread(
+          target=lambda: get_response_and_save(user_input, state, text_entry),
+          daemon=True).start()
+    except Exception as e:
+      logging.error(f"An error occurred in on_submit: {e}")
+      messagebox.showerror("Error", str(e))
 
 
 def get_response_and_save(user_input, state, text_entry):
