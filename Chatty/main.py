@@ -179,38 +179,38 @@ def check_learned_phrases(text, state):
 
 
 def get_response(text, state):
-  try:
-    sentiment_result, sentiment_scores, word_type_scores = analyze_text(
-        text, state)
-    learned_sentiment = check_learned_phrases(text, state)
-    if any(greeting in text.lower()
-           for greeting in state.get_word_by_type('greetings')):
-      response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
-    elif any(farewell in text.lower()
-             for farewell in state.get_word_by_type('farewells')):
-      response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
-    elif sentiment_result == "swear":
-      response = "I'm unable to respond to that."
-    else:
-      response = "How can I assist you?"
-    messagebox.showinfo("Response", response)
+try:
+  sentiment_result, sentiment_scores, word_type_scores = analyze_text(
+      text, state)
+  learned_sentiment = check_learned_phrases(text, state)
+  if any(greeting in text.lower()
+         for greeting in state.get_word_by_type('greetings')):
+    response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
+  elif any(farewell in text.lower()
+           for farewell in state.get_word_by_type('farewells')):
+    response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
+  elif sentiment_result == "swear":
+    response = "I'm unable to respond to that."
+  else:
+    response = "How can I assist you?"
 
-    if learned_sentiment is not None and learned_sentiment != "positive":
-      answer = messagebox.askyesno(
-          "Clarification", "Was the sentiment of the phrase positive?")
-      if answer:
-        learn_action(True, text, state)
-      else:
-        learn_action(False, text, state)
-    elif learned_sentiment is None and sentiment_result in [
-        "positive", "negative"
-    ]:
-      learn_action(sentiment_result == "positive", text, state)
-      response = "I'm sorry, but an error occurred while generating a response."
-    return response
-  except Exception as e:
-    logging.error(f"An error occurred in get_response: {e}")
-  return "I'm sorry, but an error occurred while generating a response."
+  if learned_sentiment is not None and learned_sentiment != "positive":
+    answer = messagebox.askyesno(
+        "Clarification", "Was the sentiment of the phrase positive?")
+    if answer:
+      learn_action(True, text, state)
+    else:
+      learn_action(False, text, state)
+  elif learned_sentiment is None and sentiment_result in [
+      "positive", "negative"
+  ]:
+    learn_action(sentiment_result == "positive", text, state)
+except Exception as e:
+  logging.error(f"An error occurred in get_response: {e}")
+  response = "I'm sorry, but an error occurred while generating a response."
+
+return response
+
 
 
 def response_results(sentiment_result, sentiment_scores, word_type_scores):
@@ -234,40 +234,17 @@ def create_sentiment_buttons(user_text, state):
 
   popup.destroy()
 
-  def on_submit(state, text_entry):  # Accept state and text_entry as arguments
-    try:
-      user_input = text_entry.get()
-      # Start a separate thread to handle analysis, learning, and response retrieval
-      threading.Thread(
-          target=lambda: get_response_and_save(user_input, state, text_entry),
-          daemon=True).start()
-    except Exception as e:
-      logging.error(f"An error occurred in on_submit: {e}")
-      messagebox.showerror("Error", str(e))
 
-
-def get_response_and_save(user_input, state, text_entry):
-  sentiment, scores, _ = analyze_text(user_input, state)
-  response_results(
-      sentiment, scores,
-      [])  # Placeholder for word_type_scores - to log the sentiment scores
-  learned_sentiment = check_learned_phrases(user_input, state)
-  if learned_sentiment:
-    sentiment = learned_sentiment
-  elif sentiment == "neutral":
-    # Create a pop-up if the sentiment is neutral, as we need user decision
-    create_user_decide_popup(user_input, state)
-  else:
-    # Save the response if sentiment is positive or negative
-    is_positive = sentiment == "positive"
-    learn_action(is_positive, user_input, state)
-  # After analyzing and potentially saving sentiment, reflect any changes to the learned actions
-  if state.action_buffer:
-    state.save_learned_actions_to_file('learned_actions.json')
-  text_entry.delete(0, tk.END)  # Clear the text entry field
-  messagebox.showinfo("Response",
-                      f"Your sentiment is: {sentiment.capitalize()}"
-                      )  # Show the sentiment to the user
+def on_submit(state, text_entry):  # Accept state and text_entry as arguments
+  try:
+    user_input = text_entry.get()
+    # Start a separate thread to handle analysis, learning, and response retrieval
+    threading.Thread(
+        target=lambda: get_response_and_save(user_input, state, text_entry),
+        daemon=True).start()
+  except Exception as e:
+    logging.error(f"An error occurred in on_submit: {e}")
+    messagebox.showerror("Error", str(e))
 
 
 def create_popup(state, root):
