@@ -351,6 +351,16 @@ def create_sentiment_buttons(user_text):
   popup.mainloop()
 
 
+def on_submit():
+  user_input = text_entry.get(
+  )  # You may need to retrieve and process the text entry from the user
+  response = get_response(
+      user_input)  # Assuming you have a response function to handle the input
+  messagebox.showinfo(
+      "Response", response
+  )  # Show the response in a messagebox, or feel free to handle differently
+
+
 # TKinter popup creation
 def create_popup():
   root = tk.Tk()
