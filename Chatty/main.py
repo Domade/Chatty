@@ -179,38 +179,37 @@ def check_learned_phrases(text, state):
 
 
 def get_response(text, state):
-try:
-  sentiment_result, sentiment_scores, word_type_scores = analyze_text(
-      text, state)
-  learned_sentiment = check_learned_phrases(text, state)
-  if any(greeting in text.lower()
-         for greeting in state.get_word_by_type('greetings')):
-    response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
-  elif any(farewell in text.lower()
-           for farewell in state.get_word_by_type('farewells')):
-    response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
-  elif sentiment_result == "swear":
-    response = "I'm unable to respond to that."
-  else:
-    response = "How can I assist you?"
-
-  if learned_sentiment is not None and learned_sentiment != "positive":
-    answer = messagebox.askyesno(
-        "Clarification", "Was the sentiment of the phrase positive?")
-    if answer:
-      learn_action(True, text, state)
+  try:
+    sentiment_result, sentiment_scores, word_type_scores = analyze_text(
+        text, state)
+    learned_sentiment = check_learned_phrases(text, state)
+    if any(greeting in text.lower()
+           for greeting in state.get_word_by_type('greetings')):
+      response = f"{random.choice(state.get_word_by_type('greetings')).capitalize()}! How can I help you today?"
+    elif any(farewell in text.lower()
+             for farewell in state.get_word_by_type('farewells')):
+      response = f"{random.choice(state.get_word_by_type('farewells')).capitalize()}! Have a great day!"
+    elif sentiment_result == "swear":
+      response = "I'm unable to respond to that."
     else:
-      learn_action(False, text, state)
-  elif learned_sentiment is None and sentiment_result in [
-      "positive", "negative"
-  ]:
-    learn_action(sentiment_result == "positive", text, state)
-except Exception as e:
-  logging.error(f"An error occurred in get_response: {e}")
-  response = "I'm sorry, but an error occurred while generating a response."
+      response = "How can I assist you?"
 
-return response
+    if learned_sentiment is not None and learned_sentiment != "positive":
+      answer = messagebox.askyesno(
+          "Clarification", "Was the sentiment of the phrase positive?")
+      if answer:
+        learn_action(True, text, state)
+      else:
+        learn_action(False, text, state)
+    elif learned_sentiment is None and sentiment_result in [
+        "positive", "negative"
+    ]:
+      learn_action(sentiment_result == "positive", text, state)
+  except Exception as e:
+    logging.error(f"An error occurred in get_response: {e}")
+    response = "I'm sorry, but an error occurred while generating a response."
 
+  return response
 
 
 def response_results(sentiment_result, sentiment_scores, word_type_scores):
