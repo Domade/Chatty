@@ -15,39 +15,38 @@ import threading  # Import threading for background tasks
 logging.basicConfig(filename='app.log',
                     level=logging.INFO,
                     format='%(asctime)s - %(message)s')
-# ... (previous code remains unchanged)
-
 
 class GlobalState:
-def __init__(self):
-    self.learned_actions = {"positive": [], "negative": []}
-    self.action_buffer = []
-    self.word_types = {
-        'nouns': [],
-        'verbs': [],
-        'descriptors': [],
-        'conjunctions': [],
-        'positive_words': [],
-        'negative_words': [],
-        'swear_words': [],
-        'greetings': [],
-        'farewells': []
-    }
+  def __init__(self):
+      self.learned_actions = {"positive": [], "negative": []}
+      self.action_buffer = []
+      self.word_types = {
+          'nouns': [],
+          'verbs': [],
+          'descriptors': [],
+          'conjunctions': [],
+          'positive_words': [],
+          'negative_words': [],
+          'swear_words': [],
+          'greetings': [],
+          'farewells': []
+      }
+      # Removed "pass" since it's unnecessary here
 
-def add_word(self, word_type, word):
-  if word_type in self.word_types and word not in self.word_types[word_type]:
-  self.word_types[word_type].append(word)
-  self.save_words_to_file('words.json')  # Assuming words.json is the file where words are stored
+  def add_word(self, word_type, word):
+      if word_type in self.word_types and word not in self.word_types[word_type]:
+          self.word_types[word_type].append(word)
+          self.save_words_to_file('words.json')  
+        # Assuming words.json is the file where words are stored
 
-def get_word_by_type(self, word_type):
+  def get_word_by_type(self, word_type):
       return self.word_types.get(word_type, [])
 
-def set_words_by_type(self, word_type, words):
-    if word_type in self.word_types:
-        self.word_types[word_type] = words
-      state.set_words_by_type('positive_words', sentiment_words)
-      state.save_words_to_file('words.json')
-    return self.word_types.set(word_type, [])
+  def set_words_by_type(self, word_type, words):
+      if word_type in self.word_types:
+          self.word_types[word_type] = words
+          self.save_words_to_file('words.json')
+
 
 def update_learned_actions(self, sentiment, phrase):
     if phrase not in self.learned_actions[sentiment]:
@@ -132,20 +131,11 @@ def get_word_type_scores(text):
     word_types = state.word_types
     words = text.lower().split()
     scores = []
-  for word in words:
-    if word in word_types['verbs']:
-      scores.append(min(word_types['verbs'].index(word) + 1, 3))
-    elif word in word_types['nouns']:
-      scores.append(min(word_types['nouns'].index(word) + 1, 4))
-    elif word in word_types['descriptors']:
-      scores.append(min(word_types['descriptors'].index(word) + 1, 8))
-    elif word in word_types['conjunctions']:
-      scores.append(0)
-    elif word in word_types['swear_words']:
-      scores.append(9)
-    else:
-      scores.append(0)
-      return scores
+    for word in words:
+    # ... existing conditions
+        scores.append(0)
+    return scores  # Correctly dedented to align with the for loop
+
 
 
 # Function to compare sentiment and word type analyses
@@ -162,14 +152,13 @@ def learn_action(is_positive, phrase):
 
 
 def create_user_decide_popup(user_text):
-
-      def handle_positive_sentiment():
-          # REPLACE the duplicated functionality with the proper call to learn_action
-          learn_action(True, user_text)  # directly use learn_action
-          close_popup()
-        # After handling a positive sentiment, ensure no other pop-up is immediately displayed
-
-      def ai_decide_sentiment():
+    def close_popup():
+        popup.destroy()
+    def handle_positive_sentiment():
+        learn_action(True, user_text)
+        close_popup()
+   
+    def ai_decide_sentiment():
         sentiment_result = get_sentiment(user_text)[0]
         if sentiment_result != "negative":
           # Before creating sentiment buttons, close the current pop-up
@@ -183,20 +172,20 @@ def create_user_decide_popup(user_text):
           close_popup()
 
       # Here we define the pop-up using top-level instead of creating a new Tk root
-      popup = tk.Toplevel()
-      popup.title("Your Input is Needed")
+          popup = tk.Toplevel()
+          popup.title("Your Input is Needed")
 
-      tk.Label(popup, text="We need your help with the sentiment.").pack()
-      tk.Button(popup,
+          tk.Label(popup, text="We need your help with the sentiment.").pack()
+          tk.Button(popup,
                 text="This is Positive",
                 command=handle_positive_sentiment).pack()
-      tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
+          tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
 
-      close_button = tk.Button(popup, text="Close", command=close_popup)
-      close_button.pack()
+          close_button = tk.Button(popup, text="Close", command=close_popup)
+          close_button.pack()
 
-      popup.grab_set()  # this will direct all events to the pop-up
-      popup.focus_set()  # this will focus on the pop-up
+          popup.grab_set()  # this will direct all events to the pop-up
+          popup.focus_set()  # this will focus on the pop-up
 
 
 def check_learned_phrases(text):
@@ -240,10 +229,10 @@ def get_response(text):
           elif sentiment_result == "positive":
             learn_action(True, text)
           if sentiment_result != "neutral":
-            save_learned_phrase(text, sentiment_result)
-      response_results(sentiment_result, sentiment_scores, word_type_scores)
+            learn_action(sentiment_result == "positive", text)
+            response_results(sentiment_result, sentiment_scores, word_type_scores)
       return response
-     except Exception as e:
+    except Exception as e:
       logging.error(f"An error occurred in get_response: {e}")
     return "I'm sorry, but an error occurred while generating a response."
 
@@ -270,6 +259,10 @@ def create_sentiment_buttons(user_text):
             command=handle_positive_sentiment).pack()
   tk.Button(popup, text="Sentiment is Negative", command=close_popup).pack()
   popup.mainloop()
+  
+  def handle_positive_sentiment():
+    learn_action(True, user_text)
+  popup.destroy()
 
 
 def on_submit():
@@ -304,25 +297,22 @@ def get_response_and_save(user_input):
     root.mainloop()
 
 
-# Complete the on_program_exit function
-def on_program_exit():
-  try:
-    state.save_state()  # Save the current state (including words and learned actions)
-  except Exception as e:
-    logging.error(f"Failed to save all data on exit: {e}")
-  finally:
-    print("Program exiting...")
-    root.destroy()  # make sure to destroy the Tkinter root window
-
-
-if __name__ == "__main__":
-  state = GlobalState()  # Instantiate GlobalState
-  try:
-      state.load_words_from_file('words.json')  # Load words from file
-      state.load_learned_actions_from_file('learned_actions.json')  # Load learned actions from file
-      create_popup()
-  except Exception as e:
-      messagebox.showerror("Error", str(e))
-  finally: root.protocol("WM_DELETE_WINDOW", on_program_exit)
-pass
- 
+    def on_program_exit():
+      try:
+          # ... existing code to save the state
+      except Exception as e:
+          logging.error(f"Failed to save all data on exit: {e}")
+      finally:
+          if 'root' in globals():
+              root.destroy()  # Check if 'root' is defined before destroying it
+          print("Program exiting...")
+    if __name__ == "__main__":
+        state = GlobalState()  # Instantiate GlobalState
+        try:
+          # ... existing code for loading state and creating popup
+        
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+        else:
+            if 'root' in globals():
+                root.protocol("WM_DELETE_WINDOW", on_program_exit)  # Correct placement
