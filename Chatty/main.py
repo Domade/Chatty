@@ -319,24 +319,34 @@ class GlobalState:
           root.destroy()  # Check if 'root' is defined before destroying it
         print("Program exiting...")  # Main Execution Corrections
 
-    def main():
-      # This function should initiate the main application window and loop
-      root = tk.Tk()
-      root.title("Main Window")
-      # ...
-      # Setup the rest of your Tkinter widgets here before starting the mainloop
+# ... [Rest of your code before the main function] ...
 
-      # Create a GlobalState instance and load data from files
-      state = GlobalState()
-      try:
+def main():
+    # This function should initiate the main application window and loop
+    global root
+    root = tk.Tk()
+    root.title("Main Window")
+    # ...
+    # Setup the rest of your Tkinter widgets here before starting the mainloop
+
+    # Create a GlobalState instance and load data from files
+    state = GlobalState()
+    try:
         state.load_words_from_file('words.json')
         state.load_learned_actions_from_file('learned_actions.json')
-      except Exception as e:
+    except Exception as e:
         logging.error(f"Failed to load state: {e}")
         messagebox.showerror("Error", str(e))
 
-      # After setting up the UI, start the Tkinter event loop
-      root.mainloop()
+    # After setting up the UI, start the Tkinter event loop
+    try:
+        root.mainloop()
+    except Exception as e:
+        logging.error(f"An uncaught error occurred: {e}")
+        messagebox.showerror("Uncaught Error", str(e))
+        root.destroy()
 
-    if __name__ == "__main__":
-      main()  # This will start your main application
+# Place the if __name__ == "__main__": block at the bottom, correctly indented
+if __name__ == "__main__":
+    main()  # This will start your main application
+
