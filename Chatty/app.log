@@ -57,3 +57,4 @@
 2024-01-11 04:57:22,925 - Learned phrase detected: 'just testing anything new?' with a positive sentiment.
 2024-01-11 05:10:17,110 - Learned phrase detected: 'hello' with a positive sentiment.
 2024-01-11 05:15:22,759 - Learned phrase detected: 'hell' with a neutral sentiment.
+2024-01-11 09:28:06,267 - Failed to load state: 'GlobalState' object has no attribute 'load_words_from_file'
