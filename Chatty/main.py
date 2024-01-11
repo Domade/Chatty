@@ -16,6 +16,34 @@ logging.basicConfig(filename='app.log',
 
 
 # Simplified sentiment analysis function
+# [...Same as previous...]
+# Your other function definitions should be here
+# Function to load words from a file
+def load_words():
+  try:
+    with open('words.json', 'r') as f:
+      loaded_words = json.load(f)
+      # Include the positive and negative words lists in the return statement
+      return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
+              loaded_words.get('descriptors',
+                               []), loaded_words.get('conjunctions', []),
+              loaded_words.get('positive_words',
+                               []), loaded_words.get('negative_words', []))
+  except FileNotFoundError:
+    return [], [], [], [], [], [
+    ]  # Return empty lists if the file doesn't exist
+
+
+# Now that the function is defined, call load_words to initialize your word lists
+nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_words(
+)
+# Initialize a global dictionary to store learned actions
+learned_actions = {"positive": [], "negative": []}
+# Create a buffer to prevent direct writing to file for every action
+action_buffer = []
+
+
+# Simplified sentiment analysis function
 def get_sentiment(text):
   # Load global sentiment word lists
   global positive_words, negative_words, swear_words
@@ -115,48 +143,29 @@ def save_words():
     json.dump(words_to_save, f)
 
 
-# Function to load words from a file
-def load_words():
-  try:
-    with open('words.json', 'r') as f:
-      loaded_words = json.load(f)
-      return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
-              loaded_words.get('descriptors',
-                               []), loaded_words.get('conjunctions', []),
-              loaded_words.get('positive_words',
-                               []), loaded_words.get('negative_words', []),
-              loaded_words.get('swear_words',
-                               []))  # Adding swear_words to the returned tuple
-  except FileNotFoundError:
-    return [], [], [], [], [], [], [
-    ]  # Return empty lists if the file doesn't exist
-
-
-# Load words at the beginning of the program
-# Update the global lists including the sentiment lists and swear_words list
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words, swear_words = load_words(
-)
-# Predefined words
-greetings = [
-    "hello", "hi", "hey", "good morning", "good afternoon", "good evening"
-]
-farewells = ["bye", "goodbye", "see you later", "farewell"]
-# Initialize a global dictionary to store learned actions
-learned_actions = {"positive": [], "negative": []}
-
-
 # Function to save learned actions to a file
-def learn_action(is_positive, action):
+# Function to manage learned actions
+def learn_action(is_positive, phrase):
   category = "positive" if is_positive else "negative"
-  if action not in learned_actions[category]:
-    learned_actions[category].append(action)
-  with open('learned_actions.json', 'w') as la:
-    json.dump(learned_actions, la)
-  if is_positive:
-    # Your code to handle the positive sentiment
-    logging.info(f"User indicated positive sentiment: {action}")
-    print(f"User indicated positive sentiment: {action}")
-    # Optionally save this action or increment some counter etc.
+  if phrase not in learned_actions[category]:
+    learned_actions[category].append(phrase)
+    # Append to buffer instead of writing directly to the file
+    action_buffer.append((category, phrase))
+
+
+# Function to save learned actions to file from the buffer
+def save_learned_actions_from_buffer():
+  if os.path.exists('learned_actions.json'):
+    with open('learned_actions.json', 'r') as file:
+      learned_actions = json.load(file)
+  else:
+    learned_actions = {"positive": [], "negative": []}
+  # Update learned actions with contents of the buffer
+  for category, phrase in action_buffer:
+    if phrase not in learned_actions[category]:
+      learned_actions[category].append(phrase)
+  with open('learned_actions.json', 'w') as file:
+    json.dump(learned_actions, file, indent=2)
 
 
 # Function to manage word lists
@@ -226,27 +235,6 @@ def save_sentiment_words(sentiment_words, sentiment):
       json.dump(words, f)
 
 
-# Modify load_words function
-def load_words():
-  try:
-    with open('words.json', 'r') as f:
-      loaded_words = json.load(f)
-      # Include the positive and negative words lists in the return statement
-      return (loaded_words.get('nouns', []), loaded_words.get('verbs', []),
-              loaded_words.get('descriptors',
-                               []), loaded_words.get('conjunctions', []),
-              loaded_words.get('positive_words',
-                               []), loaded_words.get('negative_words', []))
-  except FileNotFoundError:
-    return [], [], [], [], [], [
-    ]  # Return empty lists if the file doesn't exist
-
-
-# Update the global lists including the sentiment lists
-nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_words(
-)
-
-
 # Modify the create_user_decide_popup function accordingly
 def create_user_decide_popup(user_text):
 
@@ -282,9 +270,28 @@ def create_user_decide_popup(user_text):
   popup.mainloop()
 
 
+def check_learned_phrases(text):
+  try:
+    with open('learned_phrases.json', 'r') as file:
+      learned_phrases = json.load(file)
+      for sentiment, phrases in learned_phrases.items():
+        if text in phrases:
+          return sentiment
+    return None
+  except FileNotFoundError:
+    # If the file is not found, no phrases have been learned
+    return None
+
+
 # Modified get_response function to print sentiment to the console
 def get_response(text):
   sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
+
+  # Inside get_response function
+  learned_sentiment = check_learned_phrases(text)
+  if learned_sentiment:
+    # Return a response based on the learned sentiment
+    return f"Learned response with a {learned_sentiment} sentiment."
 
   if sentiment_result == "swear":
     logging.warning(f"Swear word detected: {text}")
@@ -300,8 +307,8 @@ def get_response(text):
 
   # Print sentiment information to console, not included in pop-up
   if sentiment_result == "positive":
-    suggested_action = "This is a positive response action."
-    learn_action(True, suggested_action)
+    learn_action(True, text)
+
     print(f"Detected positive sentiment with the statement: {text}")
   elif sentiment_result == "negative":
     suggested_action = "This is a negative response action."
@@ -337,8 +344,8 @@ def create_sentiment_buttons(user_text):
     popup.destroy()
 
   def handle_positive_sentiment():
-    # Here you can handle the positive sentiment, e.g., by saving it somewhere
-    learn_action(True, "User indicated positive sentiment.")
+    save_learned_phrase(user_text, "positive")
+    learn_action(True, user_text)
     close_popup()
 
   popup = tk.Tk()
@@ -374,6 +381,13 @@ def create_popup():
   root.mainloop()
 
 
+# Main entry point
 if __name__ == "__main__":
-  # Create the popup only if this is the main module being run
-  create_popup()
+  try:
+    # Create the popup only if this is the main module being run
+    create_popup()
+  except tk.TclError:
+    # Handle exceptions that may occur when Tkinter isn't available/closed
+    pass
+  finally:
+    on_program_exit()
