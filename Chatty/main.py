@@ -278,18 +278,26 @@ def create_popup(state, root):
   # Continue with the rest of your popup setup...
 def main():
   root = tk.Tk()
-  root.title("Main Window")  # Set a title for the main window
+  root.title("Main Window")
   state = GlobalState()
-  create_popup(state, root)  # Pass the main Tk instance "root" as an argument
-
+  # Create a label
+  tk.Label(root, text="Enter your text here:").pack()
+  # Text entry field
+  text_entry = tk.Entry(root)
+  text_entry.pack()
+  # Submit button
+  submit_button = tk.Button(root,
+                            text="Submit",
+                            command=lambda: on_submit(state, text_entry))
+  submit_button.pack()
   try:
     state.load_words_from_file('words.json')
     state.load_learned_actions_from_file('learned_actions.json')
   except Exception as e:
     logging.error(f"An error occurred while loading state: {e}")
     messagebox.showerror("Error", "Failed to load application state.")
-  finally:
-    root.mainloop()
+  # This ensures that only one window is being managed and only when all widgets are set up
+  root.mainloop()
 
 
 # Place the if __name__ == "__main__": block at the bottom, correctly indented
