@@ -308,14 +308,12 @@
                 root.destroy()  # Check if 'root' is defined before destroying it
               print("Program exiting...")# Main Execution Corrections
 
-if __name__ == "__main__":
-    state = GlobalState()
-    try:
+      if __name__ == "__main__":
+        state = GlobalState()
+      try:
         # Assuming you have a method to load the state from a file
         state.load_words_from_file('words.json')
         state.load_learned_actions_from_file('learned_actions.json')
         create_popup()  # This initializes and starts the Tkinter GUI event loop
-    except Exception as e:
+      except Exception as e:
         messagebox.showerror("Error", str(e))
-    # root.protocol is set after initialization and within the Tkinter mainloop,
-    # so it's unnecessary in this else block.
