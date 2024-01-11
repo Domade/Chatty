@@ -247,6 +247,41 @@ nouns, verbs, descriptors, conjunctions, positive_words, negative_words = load_w
 )
 
 
+# Modify the create_user_decide_popup function accordingly
+def create_user_decide_popup(user_text):
+
+  def close_popup():
+    popup.destroy()
+
+  def handle_positive_sentiment():
+    save_learned_phrase(user_text, "positive")
+    learn_action(True, user_text)
+    close_popup()
+
+  def ai_decide_sentiment():
+    sentiment_result = get_sentiment(user_text)[0]
+    if sentiment_result != "negative":
+      create_sentiment_buttons(user_text)
+    else:
+      messagebox.showinfo("Sentiment Decision",
+                          "The sentiment is negative and will not be saved.")
+    close_popup()
+
+  popup = tk.Tk()
+  popup.title("Your Input is Needed")
+
+  tk.Label(popup, text="We need your help with the sentiment.").pack()
+
+  tk.Button(popup, text="This is Positive",
+            command=handle_positive_sentiment).pack()
+  tk.Button(popup, text="You Decide", command=ai_decide_sentiment).pack()
+
+  close_button = tk.Button(popup, text="Close", command=close_popup)
+  close_button.pack()
+
+  popup.mainloop()
+
+
 # Modified get_response function to print sentiment to the console
 def get_response(text):
   sentiment_result, sentiment_scores, word_type_scores = analyze_text(text)
@@ -276,6 +311,9 @@ def get_response(text):
   # Only save phrase if not negative
   if sentiment_result != "negative":
     save_learned_phrase(text, sentiment_result)
+
+  if sentiment_result == "neutral":
+    create_user_decide_popup(text)
 
   # Call response_results here to print the sentiment and word type scores
   response_results(sentiment_result, sentiment_scores, word_type_scores)
@@ -311,13 +349,6 @@ def create_sentiment_buttons(user_text):
             command=handle_positive_sentiment).pack()
   tk.Button(popup, text="Sentiment is Negative", command=close_popup).pack()
   popup.mainloop()
-
-
-# Function to handle button click
-def on_submit():
-  user_text = text_entry.get()
-  response = get_response(user_text)
-  messagebox.showinfo("Response", response)
 
 
 # TKinter popup creation
