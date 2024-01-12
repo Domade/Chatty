@@ -16,6 +16,46 @@ logging.basicConfig(filename='app.log',
                     format='%(asctime)s - %(message)s')
 
 
+class Grid:
+
+  def __init__(self, width, height):
+    self.width = width
+    self.height = height
+    self.grid = [[None for _ in range(width)] for _ in range(height)]
+
+  def place_agent(self, agent, x, y):
+    if self.is_within_bounds(x, y):
+      self.grid[y][x] = agent
+
+  def is_within_bounds(self, x, y):
+    return 0 <= x < self.width and 0 <= y < self.height
+
+  def move_agent(self, agent, new_x, new_y):
+    if self.is_within_bounds(new_x, new_y):
+      old_x, old_y = agent.x, agent.y
+      self.grid[old_y][old_x] = None
+      self.grid[new_y][new_x] = agent
+      agent.x, agent.y = new_x, new_y
+
+
+class BeeAgent:
+
+  def __init__(self, grid, x, y):
+    self.grid = grid
+    self.x = x
+    self.y = y
+    grid.place_agent(self, x, y)
+
+  def sight(self):
+    # Placeholder for sight functionality
+    pass
+
+  def move(self, direction):
+    # Placeholder for movement logic
+    # Update self.x and self.y based on the direction and call self.grid.move_agent accordingly
+    pass
+
+
 class GlobalState:
 
   def __init__(self):
@@ -122,14 +162,15 @@ def get_sentiment(text, state):  # Accept state as an argument
       return "neutral", [0]
 
 
-def get_word_type_scores(text, state):  # Accept state as an argument
-  word_types = state.word_types
+def get_word_type_scores(text, state):
+  word_types = state.word_types.keys()
+  word_type_scores = {word_type: 0 for word_type in word_types}
   words = text.lower().split()
-  scores = []
   for word in words:
-    # ... existing conditions
-    scores.append(0)
-  return scores  # Correctly dedented to align with the for loop
+    for word_type, word_list in state.word_types.items():
+      if word in word_list:
+        word_type_scores[word_type] += 1
+  return word_type_scores
 
 
 def analyze_text(text, state):  # Accept state as an argument
@@ -137,7 +178,11 @@ def analyze_text(text, state):  # Accept state as an argument
       text, state)  # Pass state to the function call
   word_type_scores = get_word_type_scores(
       text, state)  # Pass state to the function call
-  return sentiment_result, sentiment_scores, word_type_scores
+  words_sentiment = dict()
+  for word in text.lower().split():
+    word_sentiment, score = get_word_sentiment(word, state)
+    words_sentiment[word] = {'sentiment': word_sentiment, 'score': score}
+  return sentiment_result, sentiment_scores, word_type_scores, words_sentiment
 
 
 def learn_action(is_positive, user_text, state):
@@ -178,13 +223,24 @@ def check_learned_phrases(text, state):
   return None
 
 
+def get_word_sentiment(word, state):
+  if word in state.get_word_by_type('swear_words'):
+    return 'swear', 9
+  elif word in state.get_word_by_type('positive_words'):
+    return 'positive', 1
+  elif word in state.get_word_by_type('negative_words'):
+    return 'negative', -1
+  else:
+    return 'neutral', 0
+
+
 def get_response(text, state):
   response = "How can I assist you?"
   try:
     # Log the input text
     logging.info(f"Processing input text: {text}")
     # Analyze text for sentiment and word type scores
-    sentiment_result, sentiment_scores, word_type_scores = analyze_text(
+    sentiment_result, sentiment_scores, word_type_scores, words_sentiment = analyze_text(
         text, state)
 
     # Log the analysis results
@@ -204,6 +260,12 @@ def get_response(text, state):
       response = "I'm unable to respond to that."
     elif learned_sentiment:
       response = f"I have learned that this sentiment is typically {learned_sentiment}. How else may I assist?"
+
+    # Log each word and its sentiment
+    for word, sentiment_info in words_sentiment.items():
+      logging.info(
+          f"Word: '{word}', Sentiment: {sentiment_info['sentiment']}, Score: {sentiment_info['score']}"
+      )
 
     # Log the response before returning it
     logging.info(f"Final response: {response}")
@@ -287,4 +349,7 @@ def main():
 
 # Place the if __name__ == "__main__": block at the bottom, correctly indented
 if __name__ == "__main__":
-  main()  # This will start your main application
+  main_grid = Grid(10, 10)  # Example 10x10 grid
+  bee = BeeAgent(main_grid, 5,
+                 5)  # Example bee agent placed at position (5, 5)
+  main()
