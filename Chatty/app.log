@@ -121,3 +121,21 @@
 2024-01-11 15:16:02,471 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0, 0, 0, 0]
 2024-01-11 15:16:02,471 - Learned sentiment: None
 2024-01-11 15:16:02,471 - Final response: How can I assist you?
+2024-01-11 23:53:49,625 - Words loaded successfully.
+2024-01-11 23:53:49,625 - Learned actions loaded successfully.
+2024-01-11 23:53:58,036 - Processing input text: hello
+2024-01-11 23:53:58,036 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0]
+2024-01-11 23:53:58,036 - Learned sentiment: positive
+2024-01-11 23:53:58,036 - Final response: I have learned that this sentiment is typically positive. How else may I assist?
+2024-01-11 23:54:14,493 - Processing input text: having a good day
+2024-01-11 23:54:14,493 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0, 0]
+2024-01-11 23:54:14,493 - Learned sentiment: None
+2024-01-11 23:54:14,493 - Final response: How can I assist you?
+2024-01-11 23:54:25,628 - Processing input text: its snowing outside
+2024-01-11 23:54:25,628 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0]
+2024-01-11 23:54:25,628 - Learned sentiment: None
+2024-01-11 23:54:25,628 - Final response: How can I assist you?
+2024-01-11 23:54:42,592 - Processing input text: how are you today
+2024-01-11 23:54:42,592 - Sentiment result: neutral, Sentiment Scores: [0], Word Type Scores: [0, 0, 0, 0]
+2024-01-11 23:54:42,592 - Learned sentiment: None
+2024-01-11 23:54:42,592 - Final response: How can I assist you?
